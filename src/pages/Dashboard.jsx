@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { 
   LayoutDashboard, 
   ClipboardList, 
@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import OrdemServico from './OrdemServico';
 import RelatorioDiario from './RelatorioDiario';
+import HomeDashboard from './HomeDashboard';
+import EstoqueAlmoxarifado from './EstoqueAlmoxarifado';
 
 const COR_FUNDO_CLARO = '#D8E0E5'; 
 
@@ -162,32 +164,26 @@ const Dashboard = () => {
         
         {/* TELA 1: HOME / DASHBOARD */}
         {activeMenu === 'dashboard' && (
-          <div style={{ 
-            width: '100%', 
-            height: '100%', 
-            backgroundColor: COR_FUNDO_CLARO, 
-            borderRadius: '24px', 
-            padding: '24px 32px', 
-            boxSizing: 'border-box', 
-            display: 'flex', 
-            flexDirection: 'column' 
-          }}>
-            <div style={{ marginBottom: '20px' }}>
-              <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#000000', margin: '0 0 4px 0' }}>
-                Home page
-              </h1>
-              <p style={{ fontSize: '12px', color: '#555555', margin: 0 }}>
-                Acompanhamento geral da empresa
-              </p>
-            </div>
-
-            <div style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: '16px' }} />
-          </div>
+          <HomeDashboard 
+            onNavigateToOS={() => setActiveMenu('ordem-servico')}
+            onNavigateToRDA={() => setActiveMenu('relatorio-diario')}
+            onNavigateToEstoque={() => setActiveMenu('estoque')}
+          />
         )}
 
         {/* TELA 2: ORDEM DE SERVIÇO */}
         {activeMenu === 'ordem-servico' && (
           <OrdemServico />
+        )}
+
+        {/* TELA 3: ESTOQUE / ALMOXARIFADO */}
+        {activeMenu === 'estoque' && (
+          <EstoqueAlmoxarifado key="estoque-itens" initialTab="itens" />
+        )}
+
+        {/* TELA 4: ENTRADA / SAÍDA DE MATERIAIS */}
+        {activeMenu === 'entrada-saida' && (
+          <EstoqueAlmoxarifado key="estoque-mov" initialTab="movimentacoes" />
         )}
 
       </main>

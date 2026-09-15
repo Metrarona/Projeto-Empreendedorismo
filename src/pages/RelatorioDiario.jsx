@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Trash2, AlertTriangle, Minimize2, Maximize2, Send, ArrowLeft } from 'lucide-react';
 
 const LISTA_ATIVIDADES = [

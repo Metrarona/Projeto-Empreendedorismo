@@ -1,0 +1,8 @@
+{
+  "name": "Nix Core Gestão Operacional",
+  "description": "Plataforma integrada de gestão operacional, acompanhamento de ordens de serviço e relatórios diários de atividades.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

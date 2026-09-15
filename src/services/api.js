@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://api.exemplo.com', // Altere para a URL base da sua API
+  baseURL: import.meta.env.VITE_API_URL || 'https://api.exemplo.com',
   timeout: 10000,
 });
 
