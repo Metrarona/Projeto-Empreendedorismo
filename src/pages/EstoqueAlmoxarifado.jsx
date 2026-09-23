@@ -321,22 +321,24 @@ const EstoqueAlmoxarifado = ({ initialTab = 'itens' }) => {
     <div style={{ 
       flex: 1, 
       backgroundColor: COLOR_BG_LIGHT, 
-      borderRadius: '24px', 
-      padding: '20px 24px', 
+      borderRadius: '20px', 
+      padding: '16px', 
       boxSizing: 'border-box', 
       overflowY: 'auto', 
+      WebkitOverflowScrolling: 'touch',
       fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', 
       width: '100%', 
       height: '100%',
+      maxHeight: '100%',
       display: 'flex',
       flexDirection: 'column'
     }}>
       
       {/* Top Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#000000', margin: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <h1 style={{ fontSize: '20px', fontWeight: '800', color: '#000000', margin: 0 }}>
               Gestão de Estoque & Almoxarifado
             </h1>
             <span style={{ 
@@ -360,12 +362,14 @@ const EstoqueAlmoxarifado = ({ initialTab = 'itens' }) => {
         <div style={{ 
           backgroundColor: '#FFFFFF', 
           borderRadius: '12px', 
-          padding: '8px 16px', 
+          padding: '8px 14px', 
           display: 'flex', 
           alignItems: 'center', 
-          gap: '12px',
+          gap: '10px',
           boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
-          border: '1px solid #E2E8F0'
+          border: '1px solid #E2E8F0',
+          width: '100%',
+          maxWidth: '380px'
         }}>
           <div style={{ 
             width: '36px', 
@@ -523,7 +527,7 @@ const EstoqueAlmoxarifado = ({ initialTab = 'itens' }) => {
       </div>
 
       {/* Cards de Métricas do Estoque */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', marginBottom: '16px' }}>
         <div style={{ backgroundColor: '#FFF', borderRadius: '12px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', border: '1px solid #E2E8F0' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: COLOR_TOTAL, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Package size={16} color="#0F1C2C" />
@@ -846,20 +850,23 @@ const EstoqueAlmoxarifado = ({ initialTab = 'itens' }) => {
           top: 0, 
           left: 0, 
           width: '100vw', 
-          height: '100vh', 
+          height: '100dvh',
           backgroundColor: 'rgba(15, 28, 44, 0.7)', 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center', 
           zIndex: 9999,
-          padding: '16px' 
+          padding: '12px' 
         }}>
           <div style={{ 
             backgroundColor: '#FFFFFF', 
             borderRadius: '16px', 
             width: '100%', 
             maxWidth: '520px', 
-            padding: '24px', 
+            maxHeight: '94dvh',
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            padding: '20px', 
             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
             border: '1px solid #E2E8F0'
           }}>
@@ -1051,20 +1058,23 @@ const EstoqueAlmoxarifado = ({ initialTab = 'itens' }) => {
           top: 0, 
           left: 0, 
           width: '100vw', 
-          height: '100vh', 
+          height: '100dvh',
           backgroundColor: 'rgba(15, 28, 44, 0.7)', 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center', 
           zIndex: 9999,
-          padding: '16px' 
+          padding: '12px' 
         }}>
           <div style={{ 
             backgroundColor: '#FFFFFF', 
             borderRadius: '16px', 
             width: '100%', 
             maxWidth: '480px', 
-            padding: '24px', 
+            maxHeight: '94dvh',
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            padding: '20px', 
             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
             border: '1px solid #E2E8F0'
           }}>

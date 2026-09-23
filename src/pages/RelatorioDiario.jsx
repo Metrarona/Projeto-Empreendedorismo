@@ -451,8 +451,25 @@ const RelatorioDiario = ({ onVoltar, onEnviar }) => {
   );
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: '#0F1C2C', zIndex: 9999, display: 'flex', flexDirection: 'column', padding: '20px', boxSizing: 'border-box', overflowY: 'auto', fontFamily: 'sans-serif' }}>
-      <h1 style={{ color: '#FFF', fontSize: '28px', fontWeight: '800', textAlign: 'center', marginBottom: '20px' }}>Relatório Diário</h1>
+    <div style={{ 
+      position: 'fixed', 
+      top: 0, 
+      left: 0, 
+      width: '100vw', 
+      height: '100dvh',
+      backgroundColor: '#0F1C2C', 
+      zIndex: 9999, 
+      display: 'flex', 
+      flexDirection: 'column', 
+      padding: isMobile ? '12px' : '20px', 
+      boxSizing: 'border-box', 
+      overflowY: 'auto', 
+      WebkitOverflowScrolling: 'touch',
+      fontFamily: 'sans-serif' 
+    }}>
+      <h1 style={{ color: '#FFF', fontSize: isMobile ? '20px' : '28px', fontWeight: '800', textAlign: 'center', marginBottom: isMobile ? '12px' : '20px' }}>
+        Relatório Diário
+      </h1>
 
       <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%', flex: 1 }}>
         {!isMobile && (

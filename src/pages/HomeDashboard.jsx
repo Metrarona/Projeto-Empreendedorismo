@@ -119,12 +119,13 @@ const HomeDashboard = ({ onNavigateToOS, onNavigateToRDA, onNavigateToEstoque })
       width: '100%', 
       height: '100%', 
       backgroundColor: COLOR_BG_LIGHT, 
-      borderRadius: '24px', 
-      padding: '20px 24px', 
+      borderRadius: '20px', 
+      padding: '16px', 
       boxSizing: 'border-box', 
       display: 'flex', 
       flexDirection: 'column',
       overflowY: 'auto',
+      WebkitOverflowScrolling: 'touch',
       fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     }}>
       {/* Cabeçalho Principal */}
@@ -134,10 +135,10 @@ const HomeDashboard = ({ onNavigateToOS, onNavigateToRDA, onNavigateToEstoque })
         alignItems: 'center', 
         flexWrap: 'wrap', 
         gap: '12px', 
-        marginBottom: '20px' 
+        marginBottom: '16px' 
       }}>
-        <div>
-          <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#000000', margin: '0 0 4px 0' }}>
+        <div style={{ minWidth: '200px' }}>
+          <h1 style={{ fontSize: '20px', fontWeight: '800', color: '#000000', margin: '0 0 2px 0' }}>
             Painel Geral Operacional
           </h1>
           <p style={{ fontSize: '12px', color: '#555555', margin: 0 }}>
@@ -146,11 +147,11 @@ const HomeDashboard = ({ onNavigateToOS, onNavigateToRDA, onNavigateToEstoque })
         </div>
 
         {/* Controles de Período e Ações Rápidas */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', width: '100%', maxWidth: '100%' }}>
           <div style={{ 
             backgroundColor: '#FFFFFF', 
             borderRadius: '8px', 
-            padding: '4px', 
+            padding: '3px', 
             display: 'flex', 
             alignItems: 'center', 
             boxShadow: '0 1px 3px rgba(0,0,0,0.05)' 
@@ -160,13 +161,13 @@ const HomeDashboard = ({ onNavigateToOS, onNavigateToRDA, onNavigateToEstoque })
                 key={p}
                 onClick={() => setPeriodo(p)}
                 style={{
-                  padding: '6px 12px',
+                  padding: '6px 10px',
                   borderRadius: '6px',
                   border: 'none',
                   backgroundColor: periodo === p ? COLOR_PRIMARY : 'transparent',
                   color: periodo === p ? '#FFFFFF' : '#64748B',
                   fontWeight: periodo === p ? '700' : '500',
-                  fontSize: '12px',
+                  fontSize: '11px',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease'
                 }}
@@ -183,17 +184,19 @@ const HomeDashboard = ({ onNavigateToOS, onNavigateToRDA, onNavigateToEstoque })
               color: '#FFFFFF',
               border: 'none',
               borderRadius: '8px',
-              padding: '8px 16px',
+              padding: '8px 12px',
               fontWeight: '700',
-              fontSize: '13px',
+              fontSize: '12px',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '4px',
               cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(35, 129, 253, 0.3)'
+              boxShadow: '0 2px 8px rgba(35, 129, 253, 0.3)',
+              flex: '1 1 auto',
+              justifyContent: 'center'
             }}
           >
-            <Plus size={16} /> Nova OS
+            <Plus size={15} /> Nova OS
           </button>
 
           <button
@@ -203,16 +206,18 @@ const HomeDashboard = ({ onNavigateToOS, onNavigateToRDA, onNavigateToEstoque })
               color: '#FFFFFF',
               border: 'none',
               borderRadius: '8px',
-              padding: '8px 16px',
+              padding: '8px 12px',
               fontWeight: '700',
-              fontSize: '13px',
+              fontSize: '12px',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              cursor: 'pointer'
+              gap: '4px',
+              cursor: 'pointer',
+              flex: '1 1 auto',
+              justifyContent: 'center'
             }}
           >
-            <FileText size={16} /> Novo RDA
+            <FileText size={15} /> Novo RDA
           </button>
 
           <button
@@ -222,27 +227,29 @@ const HomeDashboard = ({ onNavigateToOS, onNavigateToRDA, onNavigateToEstoque })
               color: '#0F1C2C',
               border: '1px solid #CBD5E1',
               borderRadius: '8px',
-              padding: '8px 16px',
+              padding: '8px 12px',
               fontWeight: '700',
-              fontSize: '13px',
+              fontSize: '12px',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '4px',
               cursor: 'pointer',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              flex: '1 1 auto',
+              justifyContent: 'center'
             }}
           >
-            <Package size={16} color={COLOR_PRIMARY} /> Almoxarifado
+            <Package size={15} color={COLOR_PRIMARY} /> Almoxarifado
           </button>
         </div>
       </div>
 
-      {/* Grid de Métricas Principais (4 Cards padronizados com OrdemServico) */}
+      {/* Grid de Métricas Principais (Responsivo com minmax seguro para smartphone) */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', 
-        gap: '12px', 
-        marginBottom: '20px' 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', 
+        gap: '10px', 
+        marginBottom: '16px' 
       }}>
         {metricCards.map((card) => {
           return (
@@ -300,9 +307,9 @@ const HomeDashboard = ({ onNavigateToOS, onNavigateToRDA, onNavigateToEstoque })
       {/* Seção Central: Gráficos de Produção & Monitoramento de Frota */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', 
-        gap: '16px', 
-        marginBottom: '20px' 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+        gap: '14px', 
+        marginBottom: '16px' 
       }}>
         {/* Painel 1: Produtividade Semanal de OS */}
         <div style={{ 
@@ -463,8 +470,8 @@ const HomeDashboard = ({ onNavigateToOS, onNavigateToRDA, onNavigateToEstoque })
       {/* Seção Inferior: Linha do Tempo de Atividades Recentes e Frota */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', 
-        gap: '16px' 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+        gap: '14px' 
       }}>
         {/* Atividades Recentes */}
         <div style={{ 

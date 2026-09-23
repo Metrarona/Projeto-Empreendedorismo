@@ -238,7 +238,19 @@ const OrdemServico = () => {
   };
 
   return (
-    <div style={{ flex: 1, backgroundColor: COLOR_BG_LIGHT, borderRadius: '24px', padding: '16px', boxSizing: 'border-box', overflowY: 'auto', fontFamily: 'sans-serif', width: '100%', maxHeight: '100vh' }}>
+    <div style={{ 
+      flex: 1, 
+      backgroundColor: COLOR_BG_LIGHT, 
+      borderRadius: '20px', 
+      padding: '16px', 
+      boxSizing: 'border-box', 
+      overflowY: 'auto', 
+      WebkitOverflowScrolling: 'touch',
+      fontFamily: 'sans-serif', 
+      width: '100%', 
+      height: '100%',
+      maxHeight: '100%' 
+    }}>
       
       {/* Cabeçalho */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
@@ -268,8 +280,8 @@ const OrdemServico = () => {
         </button>
       </div>
 
-      {/* Métricas (Alinhadas horizontalmente em 4 colunas) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '24px' }}>
+      {/* Métricas (Responsivas para smartphone com wrap suave) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', marginBottom: '18px' }}>
         <div style={{ backgroundColor: '#FFF', borderRadius: '12px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: COLOR_TOTAL, flexShrink: 0 }} />
           <div>

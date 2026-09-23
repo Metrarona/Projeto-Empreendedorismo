@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { X } from 'lucide-react';
 
 const CriarOs = ({ onClose, onSave }) => {
   const [activeTab, setActiveTab] = useState('dados');
@@ -65,21 +66,21 @@ const CriarOs = ({ onClose, onSave }) => {
       top: 0,
       left: 0,
       width: '100vw',
-      height: '100vh',
+      height: '100dvh',
       backgroundColor: 'rgba(15, 28, 44, 0.65)',
       backdropFilter: 'blur(3px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000,
-      padding: '20px'
+      padding: '12px'
     }}>
       <div style={{
         backgroundColor: '#FFFFFF',
         borderRadius: '16px',
         width: '100%',
         maxWidth: '850px',
-        maxHeight: '90vh',
+        maxHeight: '94dvh',
         boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         display: 'flex',
         flexDirection: 'column',
@@ -91,35 +92,56 @@ const CriarOs = ({ onClose, onSave }) => {
         <div style={{
           backgroundColor: '#0F1C2C',
           color: '#FFFFFF',
-          padding: '16px 24px'
+          padding: '14px 18px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
         }}>
-          <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '700' }}>Abertura de Ordem de Serviço</h2>
-          <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#D8E0E5' }}>Preencha as informações para registrar uma nova OS</p>
+          <div>
+            <h2 style={{ margin: 0, fontSize: '17px', fontWeight: '700' }}>Abertura de Ordem de Serviço</h2>
+            <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: '#D8E0E5' }}>Preencha as informações para registrar uma nova OS</p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Fechar"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#FFFFFF',
+              cursor: 'pointer',
+              padding: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {/* Corpo com Scroll */}
-        <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1, backgroundColor: '#F8FAFC' }}>
+        <div style={{ padding: '16px', overflowY: 'auto', WebkitOverflowScrolling: 'touch', flex: 1, backgroundColor: '#F8FAFC' }}>
           
           {/* Seção Superior - Informações Gerais */}
           <div style={{
             backgroundColor: '#FFFFFF',
             borderRadius: '12px',
-            padding: '16px',
+            padding: '14px',
             border: '1px solid #E2E8F0',
             marginBottom: '16px',
             display: 'flex',
             flexDirection: 'column',
             gap: '12px'
           }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1.5fr', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
               <div>
                 <label style={labelStyle}>Ordem</label>
                 <input type="text" name="ordem" value={formData.ordem} onChange={handleChange} style={inputStyle} readOnly />
               </div>
-              <div>
+              <div style={{ gridColumn: 'span 1' }}>
                 <label style={labelStyle}>Oficina</label>
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  <input type="text" name="oficina" value={formData.oficina} onChange={handleChange} style={{ ...inputStyle, width: '60px' }} />
+                  <input type="text" name="oficina" value={formData.oficina} onChange={handleChange} style={{ ...inputStyle, width: '50px' }} />
                   <input type="text" name="nomeOficina" value={formData.nomeOficina} onChange={handleChange} style={{ ...inputStyle, flex: 1 }} />
                 </div>
               </div>
@@ -129,7 +151,7 @@ const CriarOs = ({ onClose, onSave }) => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '13px', fontWeight: '500', color: '#0F1C2C', padding: '4px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', fontSize: '13px', fontWeight: '500', color: '#0F1C2C', padding: '4px 0' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                 <input type="radio" name="tipoSelecao" value="equipamento" checked={formData.tipoSelecao === 'equipamento'} onChange={handleChange} />
                 Equipamento
@@ -154,8 +176,8 @@ const CriarOs = ({ onClose, onSave }) => {
             </div>
           </div>
 
-          {/* Navegação de Abas */}
-          <div style={{ display: 'flex', gap: '4px', borderBottom: '2px solid #E2E8F0', marginBottom: '16px' }}>
+          {/* Navegação de Abas (Rolagem horizontal suave em mobile) */}
+          <div style={{ display: 'flex', gap: '4px', borderBottom: '2px solid #E2E8F0', marginBottom: '16px', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '2px' }}>
             {['dados', 'descricao', 'tarefas', 'espec', 'anexos', 'materiais', 'observacao'].map((tab) => {
               const labels = {
                 dados: 'Dados',
@@ -173,7 +195,7 @@ const CriarOs = ({ onClose, onSave }) => {
                   type="button"
                   onClick={() => setActiveTab(tab)}
                   style={{
-                    padding: '8px 16px',
+                    padding: '8px 14px',
                     border: 'none',
                     background: 'none',
                     borderBottom: isActive ? '3px solid #2381FD' : '3px solid transparent',
@@ -181,7 +203,9 @@ const CriarOs = ({ onClose, onSave }) => {
                     fontWeight: isActive ? '700' : '500',
                     fontSize: '13px',
                     cursor: 'pointer',
-                    marginBottom: '-2px'
+                    marginBottom: '-2px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
                   }}
                 >
                   {labels[tab]}
@@ -192,7 +216,7 @@ const CriarOs = ({ onClose, onSave }) => {
 
           {/* Aba DADOS */}
           {activeTab === 'dados' && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <div style={{ flex: 1 }}>
@@ -427,12 +451,14 @@ const CriarOs = ({ onClose, onSave }) => {
 
         {/* Rodapé de Ações */}
         <div style={{
-          padding: '12px 24px',
+          padding: '12px 18px',
           borderTop: '1px solid #E2E8F0',
           backgroundColor: '#FFFFFF',
           display: 'flex',
           justifyContent: 'flex-end',
-          gap: '12px'
+          alignItems: 'center',
+          gap: '10px',
+          flexWrap: 'wrap'
         }}>
           <button
             type="button"
@@ -445,7 +471,8 @@ const CriarOs = ({ onClose, onSave }) => {
               color: '#334155',
               fontWeight: '600',
               fontSize: '13px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              flex: '1 1 auto'
             }}
           >
             Cancelar
@@ -462,7 +489,8 @@ const CriarOs = ({ onClose, onSave }) => {
               fontWeight: '700',
               fontSize: '13px',
               cursor: 'pointer',
-              boxShadow: '0 2px 4px rgba(35, 129, 253, 0.2)'
+              boxShadow: '0 2px 4px rgba(35, 129, 253, 0.2)',
+              flex: '1 1 auto'
             }}
           >
             Salvar Ordem de Serviço

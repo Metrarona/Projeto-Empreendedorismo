@@ -10,13 +10,28 @@
 
 html, body, #root {
   width: 100%;
-  height: 100vh;
+  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   padding: 0;
-  overflow: hidden;
   background-color: #0F1C2C;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 14px; /* Tamanho padronizado */
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 768px) {
+  html, body, #root {
+    overflow-x: hidden;
+  }
+}
+
+@media (min-width: 769px) {
+  html, body, #root {
+    overflow: hidden;
+  }
 }
 
 /* Anula estilos legados de títulos */
