@@ -12,12 +12,15 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-  X
+  X,
+  Scale
 } from 'lucide-react';
 import OrdemServico from './OrdemServico';
 import RelatorioDiario from './RelatorioDiario';
 import HomeDashboard from './HomeDashboard';
 import EstoqueAlmoxarifado from './EstoqueAlmoxarifado';
+import Veiculos from './Veiculos';
+import PesagemVeiculos from './PesagemVeiculos';
 
 const COR_FUNDO_CLARO = '#D8E0E5'; 
 
@@ -48,6 +51,7 @@ const Dashboard = () => {
     { id: 'relatorio-diario', label: 'Relatório Diário', icon: FileText },
     { id: 'veiculos', label: 'Veículos', icon: Truck },
     { id: 'historico', label: 'Histórico', icon: History },
+    { id: 'pesagem', label: 'Pesagem de Veículos', icon: Scale },
     { id: 'configuracoes', label: 'Configurações', icon: Settings },
   ];
 
@@ -327,6 +331,8 @@ const Dashboard = () => {
             onNavigateToOS={() => setActiveMenu('ordem-servico')}
             onNavigateToRDA={() => setActiveMenu('relatorio-diario')}
             onNavigateToEstoque={() => setActiveMenu('estoque')}
+            onNavigateToVeiculos={() => setActiveMenu('veiculos')}
+            onNavigateToPesagem={() => setActiveMenu('pesagem')}
           />
         )}
 
@@ -343,6 +349,67 @@ const Dashboard = () => {
         {/* TELA 4: ENTRADA / SAÍDA DE MATERIAIS */}
         {activeMenu === 'entrada-saida' && (
           <EstoqueAlmoxarifado key="estoque-mov" initialTab="movimentacoes" />
+        )}
+
+        {/* TELA 5: VEÍCULOS (FROTA) */}
+        {activeMenu === 'veiculos' && (
+          <Veiculos 
+            key="veiculos-frota" 
+            initialTab="veiculos" 
+            onNavigateToOS={() => setActiveMenu('ordem-servico')}
+            onNavigateToPesagem={() => setActiveMenu('pesagem')}
+          />
+        )}
+
+        {/* TELA 6: HISTÓRICO GERAL DA FROTA */}
+        {activeMenu === 'historico' && (
+          <Veiculos 
+            key="veiculos-hist" 
+            initialTab="historico" 
+            onNavigateToOS={() => setActiveMenu('ordem-servico')}
+            onNavigateToPesagem={() => setActiveMenu('pesagem')}
+          />
+        )}
+
+        {/* TELA 7: PESAGEM DE VEÍCULOS / BALANÇA */}
+        {activeMenu === 'pesagem' && (
+          <PesagemVeiculos 
+            onNavigateToVeiculos={() => setActiveMenu('veiculos')}
+          />
+        )}
+
+        {/* TELA 8: CONFIGURAÇÕES */}
+        {activeMenu === 'configuracoes' && (
+          <div style={{
+            flex: 1,
+            backgroundColor: COR_FUNDO_CLARO,
+            borderRadius: '20px',
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '14px',
+            overflowY: 'auto'
+          }}>
+            <div style={{ backgroundColor: '#FFFFFF', borderRadius: '14px', padding: '16px', border: '1px solid #CBD5E1' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#0F1C2C', margin: '0 0 6px 0' }}>
+                Configurações da Unidade Operacional
+              </h2>
+              <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>
+                Unidade Juazeiro • Base Operacional e Aterro Sanitário
+              </p>
+            </div>
+            <div style={{ backgroundColor: '#FFFFFF', borderRadius: '14px', padding: '16px', border: '1px solid #CBD5E1', fontSize: '12px' }}>
+              <div style={{ fontWeight: '700', color: '#0F1C2C', marginBottom: '8px' }}>Módulos Ativos do Sistema:</div>
+              <ul style={{ margin: 0, paddingLeft: '20px', color: '#334155', lineHeight: '1.8' }}>
+                <li>Painel Geral Operacional & Indicadores em Tempo Real</li>
+                <li>Gestão de Ordens de Serviço (OS) com Drag-and-Drop</li>
+                <li>Almoxarifado & Controle de Estoque (9 Categorias Padronizadas)</li>
+                <li>Relatório Diário de Atividades (RDA) para Coleta e Tráfego</li>
+                <li>Frota de Veículos & Histórico de Manutenção/Pesagem</li>
+                <li>Pesagem de Veículos & Balança Rodoviária Integrada</li>
+              </ul>
+            </div>
+          </div>
         )}
 
       </main>

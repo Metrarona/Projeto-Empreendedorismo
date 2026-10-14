@@ -12,7 +12,8 @@ import {
   ChevronRight, 
   FileText,
   Plus,
-  Package
+  Package,
+  Scale
 } from 'lucide-react';
 
 const COLOR_PRIMARY = '#2381FD';
@@ -48,7 +49,13 @@ const MOCK_MONTHLY_DATA = [
   { dia: 'Dom', concluidas: 3, abertas: 1 }
 ];
 
-const HomeDashboard = ({ onNavigateToOS, onNavigateToRDA, onNavigateToEstoque }) => {
+const HomeDashboard = ({ 
+  onNavigateToOS, 
+  onNavigateToRDA, 
+  onNavigateToEstoque,
+  onNavigateToVeiculos,
+  onNavigateToPesagem
+}) => {
   const [periodo, setPeriodo] = useState('Hoje');
 
   const metricCards = useMemo(() => [
@@ -241,6 +248,54 @@ const HomeDashboard = ({ onNavigateToOS, onNavigateToRDA, onNavigateToEstoque })
           >
             <Package size={15} color={COLOR_PRIMARY} /> Almoxarifado
           </button>
+
+          {onNavigateToVeiculos && (
+            <button
+              onClick={onNavigateToVeiculos}
+              style={{
+                backgroundColor: '#FFFFFF',
+                color: '#0F1C2C',
+                border: '1px solid #CBD5E1',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                fontWeight: '700',
+                fontSize: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                cursor: 'pointer',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                flex: '1 1 auto',
+                justifyContent: 'center'
+              }}
+            >
+              <Truck size={15} color={COLOR_PRIMARY} /> Frota & Veículos
+            </button>
+          )}
+
+          {onNavigateToPesagem && (
+            <button
+              onClick={onNavigateToPesagem}
+              style={{
+                backgroundColor: '#FFFFFF',
+                color: '#0F1C2C',
+                border: '1px solid #CBD5E1',
+                borderRadius: '8px',
+                padding: '8px 12px',
+                fontWeight: '700',
+                fontSize: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                cursor: 'pointer',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                flex: '1 1 auto',
+                justifyContent: 'center'
+              }}
+            >
+              <Scale size={15} color={COLOR_PRIMARY} /> Balança
+            </button>
+          )}
         </div>
       </div>
 
@@ -552,7 +607,26 @@ const HomeDashboard = ({ onNavigateToOS, onNavigateToRDA, onNavigateToEstoque })
             <h2 style={{ fontSize: '15px', fontWeight: '800', color: '#0F1C2C', margin: 0 }}>
               Equipamentos Críticos em Monitoramento
             </h2>
-            <span style={{ fontSize: '11px', color: '#64748B' }}>Atualizado há 5 min</span>
+            {onNavigateToVeiculos ? (
+              <button 
+                onClick={onNavigateToVeiculos}
+                style={{ 
+                  background: 'transparent', 
+                  border: 'none', 
+                  color: COLOR_PRIMARY, 
+                  fontSize: '12px', 
+                  fontWeight: '700', 
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '2px'
+                }}
+              >
+                Ver frota <ChevronRight size={14} />
+              </button>
+            ) : (
+              <span style={{ fontSize: '11px', color: '#64748B' }}>Atualizado há 5 min</span>
+            )}
           </div>
 
           <div style={{ overflowX: 'auto' }}>

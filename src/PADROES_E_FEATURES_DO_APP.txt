@@ -1,0 +1,162 @@
+================================================================================
+                        NIX CORE - DOCUMENTAÇÃO DO SISTEMA
+             PADRÕES DE CORES, TIPOGRAFIA (FONTES) E FEATURES DO APP
+================================================================================
+
+--------------------------------------------------------------------------------
+1. PADRÃO DE CORES (PALETA DE CORES DO SISTEMA)
+--------------------------------------------------------------------------------
+
+[Cores Base e Estrutura]
+- Fundo Principal Escuro (Sidebar, Background Global, Modais): #0F1C2C (Azul Marinho Profundo)
+- Fundo Claro Principal dos Painéis (Container Central):       #D8E0E5 (Cinza Azulado Claro)
+- Fundo de Cards, Tabelas e Modais:                            #FFFFFF (Branco Puro)
+- Fundo Secundário de Seções / Linhas Alternadas / Inputs:     #F8FAFC / #F1F5F9 / #EFEFEF
+
+[Cores de Ação e Identidade Visual]
+- Azul Primário (Botões Principais, Destaques, Links Ativos):  #2381FD
+- Azul Secundário (Botões de Envio / Ações do RDA):            #2563EB
+- Azul Claro de Destaque / Textos de Apoio no Login:           #5AA4DE / #4385C8
+- Gradiente Institucional (Card de Login Desktop):
+  linear-gradient(270deg, #031F37 0%, #02192E 12%, #054379 25%, #255471 35%, #D8E0E5 60%, #D8E0E5 100%)
+
+[Cores Semânticas, Status e Prioridades]
+- Status Concluído / Operando / Entrada / Sucesso:             #34AC4C / #10B981 (Verde)
+- Status Em Execução / Em Andamento:                           #2381FD (Azul)
+- Status Aberto / Pendente / Standby / Prioridade Média:       #F5C344 (Amarelo / Âmbar)
+- Status Crítico / Prioridade Alta / Saída / Exclusão / Erro:  #FF4D4D / #EF4444 / #DC2626 (Vermelho)
+- Status Total / Prioridade Baixa / Neutro:                    #A3A3A3 (Cinza)
+- Alerta Preventivo (Fundo / Borda / Texto):                   #FFF7ED / #FED7AA / #EA580C
+
+[Cores de Tipografia e Bordas]
+- Texto Principal Escuro (Títulos e Dados Principais):         #0F1C2C / #000000 / #1F2937
+- Texto Secundário (Subtítulos, Labels e Descrições):          #475569 / #64748B / #555555
+- Texto Auxiliar / Placeholders / Ícones Inativos:             #94A3B8 / #999999
+- Bordas de Cards, Inputs e Divisores:                         #E2E8F0 / #CBD5E1 / #D8E0E5
+- Scrollbar Minimalista (Thumb / Hover):                       #94A3B8 / #64748B
+
+
+--------------------------------------------------------------------------------
+2. PADRÃO DE FONTES E TIPOGRAFIA
+--------------------------------------------------------------------------------
+
+[Família Tipográfica (Font Family)]
+- Fonte Padrão do Sistema (UI):
+  system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif
+- Características: Renderização nativa de alta legibilidade com suavização ativa
+  (-webkit-font-smoothing: antialiased).
+
+[Escala Tipográfica e Pesos (Font Sizes & Weights)]
+- Tamanho Base Global (Root):        14px
+- Títulos de Página (H1):            20px a 28px | Peso: 800 (ExtraBold)
+- Títulos de Modais e Painéis (H2):  15px a 20px | Peso: 700 (Bold) a 800 (ExtraBold)
+- Indicadores Numéricos (KPI Cards): 18px a 20px | Peso: 800 (ExtraBold)
+- Botões de Ação e Abas:             12px a 14px | Peso: 600 (SemiBold) a 700 (Bold)
+- Corpo de Tabelas e Inputs:         12px a 13px | Peso: 400 (Regular) a 600 (SemiBold)
+- Labels de Formulário e Badges:     10px a 11px | Peso: 600 a 700 (com Uppercase em rótulos)
+
+
+--------------------------------------------------------------------------------
+3. INFORMAÇÕES DE FEATURES (FUNCIONALIDADES DO APLICATIVO)
+--------------------------------------------------------------------------------
+
+1. AUTENTICAÇÃO E SEGURANÇA (Login.jsx)
+   - Login de usuários com validação de credenciais e opção "Lembrar-me".
+   - Autenticação de Dois Fatores (2FA) com validação de código de 6 dígitos.
+   - Fluxo completo de Recuperação de Senha em 3 etapas:
+     1) Solicitação por e-mail cadastrado;
+     2) Validação de código de segurança enviado;
+     3) Redefinição e confirmação de nova senha.
+   - Cadastro de Primeiro Acesso para novos colaboradores (Nome completo, Código de
+     colaborador, E-mail e Senha).
+
+2. NAVEGAÇÃO E ESTRUTURA RESPONSIVA (Dashboard.jsx)
+   - Sidebar retrátil no Desktop (alternância entre 240px expandida e 72px compacta).
+   - Modo Smartphone (< 768px) com barra superior fixa, identificação da tela ativa e
+     menu gaveta deslizante (Drawer lateral com fundo em blur).
+   - Adaptação dinâmica de altura (`100dvh`) e grids flexíveis para uso em campo via celular.
+
+3. PAINEL GERAL OPERACIONAL / HOME DASHBOARD (HomeDashboard.jsx)
+   - Filtro dinâmico por período ("Hoje", "Semana", "Mês") que recalcula os indicadores.
+   - Botões de acesso rápido para "+ Nova OS", "Novo RDA" e "Almoxarifado".
+   - 4 Cards de KPIs principais com indicadores percentuais de desempenho:
+     * Total de Ordens de Serviço;
+     * Ordens Em Execução Agora;
+     * Ordens Concluídas no Período;
+     * Disponibilidade da Frota (%).
+   - Gráfico de barras customizado de Volume Operacional da Semana (Concluídas vs. Abertas).
+   - Painel de Resumo de Frota & Disponibilidade (Operando, Paradas/OS, Standby), alertas
+     preventivos de horímetro e média de combustível da frota.
+   - Feed de Últimas Ocorrências & Ações em tempo real.
+   - Tabela de Equipamentos Críticos em Monitoramento (Veículo, Placa, Horímetro, Operador e Status).
+
+4. GESTÃO DE ORDENS DE SERVIÇO - OS (OrdemServico.jsx e CriarOs.jsx)
+   - Painel de métricas de OS (Total, Aberto, Em Execução e Concluídas).
+   - Busca textual instantânea por número da OS, equipamento, descrição, solicitante ou responsável.
+   - Filtro e ordenação avançada por Status, Prioridade, Equipamento, Solicitante,
+     Responsável, Data de Abertura e Número da OS.
+   - Colunas da tabela reordenáveis via Drag-and-Drop (arrastar e soltar cabeçalhos).
+   - Painel interativo de Detalhes e Histórico da OS selecionada, permitindo editar
+     observações e alterar o status diretamente ("Aberto", "Em Execução", "Concluído").
+   - Modal completo de Abertura de Nova OS (CriarOs.jsx) estruturado em abas:
+     * Dados Gerais (Ordem, Oficina, Equipamento/Componente/Centro de Custo, Contadores KM/HR,
+       Sub-sistema, Tipo de Manutenção, Setor, Planejador, Causa, Sintoma e Datas de Programação);
+     * Descrição detalhada do defeito/serviço;
+     * Tarefas, Especificações, Anexos, Materiais e Observações.
+
+5. GESTÃO DE ESTOQUE & ALMOXARIFADO (EstoqueAlmoxarifado.jsx)
+   - Gestão e edição rápida do Responsável Geral pelo Almoxarifado no cabeçalho.
+   - Métricas de inventário em tempo real: Itens Cadastrados, Volume Físico Total,
+     Itens em Estoque Crítico/Mínimo e Total de Movimentações.
+   - Filtro rápido dedicado às 9 categorias obrigatórias do almoxarifado:
+     1) EPIs
+     2) Ferramentas
+     3) Material para Escritório
+     4) Ferramentas de Jardinagem
+     5) Ferramentas da Mecânica
+     6) Peças de Reposição
+     7) Óleos de Lubrificação e Hidráulicos
+     8) Material de Construção
+     9) Material de Limpeza
+   - Catálogo de Materiais: controle de código, categoria, saldo atual, estoque mínimo,
+     alerta visual automático de "Estoque Baixo", localização física no galpão e botões
+     de ação rápida para Entrada (+) e Saída (-).
+   - Controle de Entrada e Saída de Materiais: histórico completo de movimentações contendo
+     Data/Hora, Tipo (Entrada ou Saída), Material/Equipamento, Quantidade, Responsável pela
+     Entrega, Solicitante do Material e Observações/Destino (ex: vínculo com OS).
+   - Modais dedicados para Cadastro de Novo Item no Estoque e Registro de Movimentação
+     com validação automática de saldo disponível para evitar estoque negativo.
+
+6. RELATÓRIO DIÁRIO DE ATIVIDADES - RDA (RelatorioDiario.jsx)
+   - Módulo em tela cheia para apontamento diário de operações de coleta e frota.
+   - Card "Dados da Operação" (minimizável no desktop e dividido em 2 etapas no smartphone):
+     * Registro de Motorista, Veículo, Placa, Data, Regional, Procedência, Horímetro Inicial,
+       Horímetro Final e Hora;
+     * Gestão dinâmica de Coletores (adição ilimitada e exclusão com modal de confirmação).
+   - Tabelas duplas de apontamento de Atividades Operacionais (Início de jornada, Coleta,
+     Pesagem, Descarga, Abastecimento, Manutenção, etc.) com Hora e Quilometragem.
+   - Tabela de Controle de Descargas (1ª à 5ª descarga) com cálculo automático do Peso Total (kg).
+   - Tabela de Controle de Abastecimento (Litros), registro de horários/nomes de Motoristas,
+     Fiscais e Auxiliar de Tráfego, além de contabilização da Quantidade de Viagens.
+
+7. GESTÃO DE VEÍCULOS & HISTÓRICO OPERACIONAL (Veiculos.jsx)
+   - Categorização da frota nas categorias operacionais da plataforma:
+     * Caminhões Compactadores
+     * Caminhões Poliguindaste & Roll-On
+     * Caminhões Basculantes
+     * Máquinas Pesadas & Terraplanagem
+     * Caminhões Pipa & Lavagem
+     * Varredeiras Mecanizadas
+     * Veículos Leves & Apoio
+   - Métricas em tempo real: Total da Frota, Operando Agora, Em Manutenção, Aguardando OS e Taxa de Disponibilidade (%).
+   - Visualização alternável entre Cards ricos e Tabela completa de frota com tara cadastrada, horímetro e combustível.
+   - Histórico Integrado do Veículo: linha do tempo com filtros por OS, RDA, Pesagens na Balança e Abastecimentos.
+   - Modais completos para Cadastro de Novo Veículo e Registro Manual de Ocorrências no Histórico.
+
+8. PESAGEM DE VEÍCULOS & BALANÇA RODOVIÁRIA (PesagemVeiculos.jsx)
+   - Indicadores operacionais de pesagem: Peso Líquido Total Hoje (kg/ton), Total de Pesagens, Média por Carga e Veículos Ativos.
+   - Filtro por tipo de resíduo (RSU, RCC Entulhos, Podas/Vegetação, Lodo de ETE, Recicláveis) e por Balança (01 - Aterro, 02 - Transbordo, 03 - Pátio Juazeiro).
+   - Modal de Nova Pesagem com integração direta à frota cadastrada (puxando placa, tara padrão e motorista automaticamente).
+   - Cálculo em tempo real do Peso Líquido (Peso Bruto - Tara) em quilogramas e toneladas.
+   - Emissão e visualização de Ticket / Comprovante de Pesagem digital oficial com autenticação e código de barras.
+================================================================================
