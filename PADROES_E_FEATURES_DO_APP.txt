@@ -159,4 +159,10 @@
    - Modal de Nova Pesagem com integração direta à frota cadastrada (puxando placa, tara padrão e motorista automaticamente).
    - Cálculo em tempo real do Peso Líquido (Peso Bruto - Tara) em quilogramas e toneladas.
    - Emissão e visualização de Ticket / Comprovante de Pesagem digital oficial com autenticação e código de barras.
+
+9. COMPONENTE DE FILTRAGEM RESPONSIVA & MENUS FLUTUANTES (UX Mobile & Tablet)
+   - Substituição de barras estáticas por botões compactos com ícone de Filtro (<Filter />), badge indicador de filtros ativos e Popover/Modal Flutuante Responsivo.
+   - Backdrop semi-transparente de tela cheia (zIndex 999/1000): impede fechamentos prematuros em telas sensíveis ao toque (iOS/Android/iPad) e nunca corta menus fora da tela.
+   - Correção de Flexbox (height 100%, minHeight 0, minWidth 0): garante que a listagem de dados (veículos, histórico, pesagens e estoque) role com total fluidez em smartphones e tablets, sem ser empurrada para fora do viewport.
+   - Alternador de visualização Cards vs Tabela em Veículos e agora também em Pesagem de Balança: cartões legíveis e compactos para telas menores e tabela com rolagem horizontal touch.
 ================================================================================

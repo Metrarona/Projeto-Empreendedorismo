@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { 
   Package, 
   ArrowLeftRight, 
@@ -11,7 +11,9 @@ import {
   Filter, 
   X,
   Check,
-  Building2
+  Building2,
+  ChevronDown,
+  RotateCcw
 } from 'lucide-react';
 
 const COLOR_PRIMARY = '#2381FD';
@@ -130,6 +132,36 @@ const EstoqueAlmoxarifado = ({ initialTab = 'itens' }) => {
   const [movimentacoes, setMovimentacoes] = useState(INITIAL_MOVIMENTACOES);
   const [selectedCategoria, setSelectedCategoria] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+  const filterMenuRef = useRef(null);
+
+  // Fecha o menu flutuante ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
+        setIsFilterMenuOpen(false);
+      }
+    };
+    if (isFilterMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isFilterMenuOpen]);
+
+  const contagemPorCategoria = useMemo(() => {
+    const counts = { Todos: itens.length };
+    CATEGORIAS_ESTOQUE.forEach(cat => {
+      if (cat !== 'Todos') {
+        counts[cat] = itens.filter(i => i.categoria === cat).length;
+      }
+    });
+    return counts;
+  }, [itens]);
+
   const [responsavelGeral, setResponsavelGeral] = useState('Carlos Almoxarife');
   const [isEditingResponsavel, setIsEditingResponsavel] = useState(false);
   const [tempResponsavel, setTempResponsavel] = useState(responsavelGeral);
@@ -330,6 +362,8 @@ const EstoqueAlmoxarifado = ({ initialTab = 'itens' }) => {
       width: '100%', 
       height: '100%',
       maxHeight: '100%',
+      minHeight: 0,
+      minWidth: 0,
       display: 'flex',
       flexDirection: 'column'
     }}>
@@ -573,78 +607,299 @@ const EstoqueAlmoxarifado = ({ initialTab = 'itens' }) => {
         </div>
       </div>
 
-      {/* Barra de Filtro por Categoria (Todas as solicitadas pelo usuário) */}
-      <div style={{ 
-        backgroundColor: '#FFFFFF', 
-        borderRadius: '14px', 
-        padding: '12px 16px', 
-        marginBottom: '16px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-        border: '1px solid #E2E8F0'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-          <Filter size={14} color="#64748B" />
-          <span style={{ fontSize: '11px', fontWeight: '700', color: '#475569', textTransform: 'uppercase' }}>
-            Filtrar por Categoria de Almoxarifado:
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '4px' }}>
-          {CATEGORIAS_ESTOQUE.map((cat) => {
-            const isSelected = selectedCategoria === cat;
-            return (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategoria(cat)}
-                style={{
-                  whiteSpace: 'nowrap',
-                  padding: '5px 12px',
-                  borderRadius: '20px',
-                  border: isSelected ? `1px solid ${COLOR_PRIMARY}` : '1px solid #E2E8F0',
-                  backgroundColor: isSelected ? `${COLOR_PRIMARY}18` : '#F8FAFC',
-                  color: isSelected ? COLOR_PRIMARY : '#475569',
-                  fontSize: '12px',
-                  fontWeight: isSelected ? '700' : '500',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                {cat}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Caixa de Pesquisa e Área de Tabela Principal */}
       <div style={{ backgroundColor: '#FFF', borderRadius: '16px', padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', border: '1px solid #E2E8F0' }}>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h2 style={{ fontSize: '16px', fontWeight: '800', margin: 0, borderBottom: `2px solid ${COLOR_PRIMARY}`, paddingBottom: '4px' }}>
-              {activeTab === 'itens' ? `Materiais e Equipamentos (${filteredItens.length})` : `Histórico de Entrada e Saída (${filteredMovimentacoes.length})`}
-            </h2>
+        {/* Barra de Pesquisa, Filtros Flutuantes e Controles (100% Responsiva) */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: '800', margin: 0, borderBottom: `2px solid ${COLOR_PRIMARY}`, paddingBottom: '4px' }}>
+                {activeTab === 'itens' ? `Materiais e Equipamentos (${filteredItens.length})` : `Histórico de Entrada e Saída (${filteredMovimentacoes.length})`}
+              </h2>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '1 1 260px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+              {/* Campo de Busca */}
+              <div style={{ flex: '1 1 180px', maxWidth: '320px', display: 'flex', alignItems: 'center', backgroundColor: '#F1F5F9', borderRadius: '8px', padding: '0 12px', border: '1px solid #E2E8F0' }}>
+                <Search size={15} color="#888" style={{ marginRight: '8px', flexShrink: 0 }} />
+                <input 
+                  type="text" 
+                  placeholder={activeTab === 'itens' ? 'Buscar código, material, local...' : 'Buscar solicitante, material, tipo...'}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{ width: '100%', padding: '8px 0', border: 'none', outline: 'none', backgroundColor: 'transparent', fontSize: '12px', color: '#0F1C2C' }}
+                />
+                {searchTerm && (
+                  <X size={14} color="#888" style={{ cursor: 'pointer' }} onClick={() => setSearchTerm('')} />
+                )}
+              </div>
+
+              {/* Ícone com Menu Flutuante de Categorias */}
+              <div style={{ position: 'relative' }} ref={filterMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
+                  title="Filtrar por Categoria"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #CBD5E1',
+                    backgroundColor: selectedCategoria !== 'Todos' ? '#0F1C2C' : '#FFFFFF',
+                    color: selectedCategoria !== 'Todos' ? '#FFFFFF' : '#0F1C2C',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+                  }}
+                >
+                  <Filter size={15} color={selectedCategoria !== 'Todos' ? '#FFFFFF' : '#0F1C2C'} />
+                  <span>Categorias</span>
+                  {selectedCategoria !== 'Todos' && (
+                    <span style={{
+                      backgroundColor: '#2381FD',
+                      color: '#FFFFFF',
+                      borderRadius: '10px',
+                      padding: '1px 6px',
+                      fontSize: '10px',
+                      fontWeight: '800'
+                    }}>
+                      1
+                    </span>
+                  )}
+                  <ChevronDown size={14} style={{ opacity: 0.7 }} />
+                </button>
+
+                {/* Menu Flutuante de Categorias (100% Responsivo com Backdrop) */}
+                {isFilterMenuOpen && (
+                  <>
+                    <div 
+                      onClick={() => setIsFilterMenuOpen(false)}
+                      style={{
+                        position: 'fixed',
+                        inset: 0,
+                        backgroundColor: 'rgba(15, 28, 44, 0.5)',
+                        backdropFilter: 'blur(3px)',
+                        WebkitBackdropFilter: 'blur(3px)',
+                        zIndex: 999
+                      }}
+                    />
+
+                    <div style={{
+                      position: 'fixed',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      backgroundColor: '#FFFFFF',
+                      borderRadius: '16px',
+                      boxShadow: '0 25px 50px -12px rgba(15, 28, 44, 0.4), 0 0 0 1px rgba(15, 28, 44, 0.1)',
+                      border: '1px solid #CBD5E1',
+                      width: 'min(380px, calc(100vw - 28px))',
+                      maxHeight: 'min(560px, calc(100dvh - 36px))',
+                      zIndex: 1000,
+                      padding: '16px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                      overflowY: 'auto',
+                      boxSizing: 'border-box'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #F1F5F9', paddingBottom: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ backgroundColor: '#EFF6FF', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Filter size={16} color={COLOR_PRIMARY} />
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '14px', fontWeight: '800', color: '#0F1C2C' }}>
+                              Categorias do Almoxarifado
+                            </div>
+                            <div style={{ fontSize: '11px', color: '#64748B' }}>
+                              Filtrar catálogo por departamento
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          {selectedCategoria !== 'Todos' && (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedCategoria('Todos')}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                border: 'none',
+                                background: 'transparent',
+                                color: '#EF4444',
+                                fontSize: '11px',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                padding: '4px 8px'
+                              }}
+                            >
+                              <RotateCcw size={12} /> Limpar
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setIsFilterMenuOpen(false)}
+                            aria-label="Fechar filtros"
+                            style={{
+                              border: 'none',
+                              background: '#F1F5F9',
+                              color: '#64748B',
+                              borderRadius: '8px',
+                              padding: '6px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '240px', overflowY: 'auto' }}>
+                        {CATEGORIAS_ESTOQUE.map((cat) => {
+                          const isSel = selectedCategoria === cat;
+                          const count = contagemPorCategoria[cat] || 0;
+                          return (
+                            <button
+                              key={cat}
+                              type="button"
+                              onClick={() => {
+                                setSelectedCategoria(cat);
+                                setIsFilterMenuOpen(false);
+                              }}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '8px 10px',
+                                borderRadius: '8px',
+                                border: isSel ? '1px solid #2381FD' : '1px solid #F1F5F9',
+                                backgroundColor: isSel ? '#EFF6FF' : '#FAFAFA',
+                                color: isSel ? '#1E40AF' : '#334155',
+                                fontSize: '12px',
+                                fontWeight: isSel ? '700' : '500',
+                                cursor: 'pointer',
+                                textAlign: 'left',
+                                transition: 'all 0.15s ease'
+                              }}
+                            >
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                {isSel ? <Check size={14} color="#2381FD" /> : <div style={{ width: '14px' }} />}
+                                <span>{cat}</span>
+                              </div>
+                              <span style={{
+                                backgroundColor: isSel ? '#2381FD' : '#E2E8F0',
+                                color: isSel ? '#FFFFFF' : '#475569',
+                                padding: '2px 8px',
+                                borderRadius: '10px',
+                                fontSize: '11px',
+                                fontWeight: '800'
+                              }}>
+                                {count}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px', paddingTop: '6px', borderTop: '1px solid #F1F5F9' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedCategoria('Todos');
+                            setIsFilterMenuOpen(false);
+                          }}
+                          style={{
+                            flex: 1,
+                            backgroundColor: '#F1F5F9',
+                            color: '#475569',
+                            border: '1px solid #CBD5E1',
+                            borderRadius: '8px',
+                            padding: '10px',
+                            fontSize: '12px',
+                            fontWeight: '700',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Ver Todos
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsFilterMenuOpen(false)}
+                          style={{
+                            flex: 2,
+                            backgroundColor: '#0F1C2C',
+                            color: '#FFFFFF',
+                            border: 'none',
+                            borderRadius: '8px',
+                            padding: '10px',
+                            fontSize: '12px',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px'
+                          }}
+                        >
+                          <Check size={14} /> Aplicar Filtro ({filteredItens.length} itens)
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
 
-          <div style={{ width: '280px', display: 'flex', alignItems: 'center', backgroundColor: '#F1F5F9', borderRadius: '8px', padding: '0 12px' }}>
-            <Search size={15} color="#888" style={{ marginRight: '8px', flexShrink: 0 }} />
-            <input 
-              type="text" 
-              placeholder={activeTab === 'itens' ? 'Buscar código, material, local...' : 'Buscar solicitante, material, tipo...'}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ width: '100%', padding: '8px 0', border: 'none', outline: 'none', backgroundColor: 'transparent', fontSize: '12px' }}
-            />
-            {searchTerm && (
-              <X size={14} color="#888" style={{ cursor: 'pointer' }} onClick={() => setSearchTerm('')} />
-            )}
-          </div>
+          {/* Tag de Filtro Ativo */}
+          {selectedCategoria !== 'Todos' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', paddingTop: '4px', borderTop: '1px solid #F1F5F9' }}>
+              <span style={{ fontSize: '11px', color: '#64748B', fontWeight: '700' }}>Filtro ativo:</span>
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                backgroundColor: '#0F1C2C',
+                color: '#FFFFFF',
+                borderRadius: '20px',
+                padding: '2px 8px',
+                fontSize: '11px',
+                fontWeight: '700'
+              }}>
+                <span>{selectedCategoria}</span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategoria('Todos')}
+                  style={{ border: 'none', background: 'transparent', color: '#FFFFFF', cursor: 'pointer', padding: 0 }}
+                >
+                  <X size={12} />
+                </button>
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedCategoria('Todos')}
+                style={{ border: 'none', background: 'transparent', color: '#EF4444', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                Limpar
+              </button>
+            </div>
+          )}
         </div>
 
         {/* TAB 1: ITENS E MATERIAIS */}
         {activeTab === 'itens' && (
-          <div style={{ overflowX: 'auto', flex: 1 }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+          <div style={{ overflowX: 'auto', flex: 1, minHeight: 0, WebkitOverflowScrolling: 'touch' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', minWidth: '780px' }}>
               <thead>
                 <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0', textAlign: 'left' }}>
                   <th style={{ padding: '10px 12px', color: '#64748B', fontWeight: '700' }}>Cód.</th>
@@ -768,8 +1023,8 @@ const EstoqueAlmoxarifado = ({ initialTab = 'itens' }) => {
 
         {/* TAB 2: APONTAMENTOS DE ENTRADA E SAÍDA */}
         {activeTab === 'movimentacoes' && (
-          <div style={{ overflowX: 'auto', flex: 1 }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+          <div style={{ overflowX: 'auto', flex: 1, minHeight: 0, WebkitOverflowScrolling: 'touch' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', minWidth: '780px' }}>
               <thead>
                 <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #E2E8F0', textAlign: 'left' }}>
                   <th style={{ padding: '10px 12px', color: '#64748B', fontWeight: '700' }}>Cód. Mov</th>

@@ -21,6 +21,7 @@ import HomeDashboard from './HomeDashboard';
 import EstoqueAlmoxarifado from './EstoqueAlmoxarifado';
 import Veiculos from './Veiculos';
 import PesagemVeiculos from './PesagemVeiculos';
+import Configuracoes from './Configuracoes';
 
 const COR_FUNDO_CLARO = '#D8E0E5'; 
 
@@ -29,16 +30,23 @@ const Dashboard = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+  const [isTablet, setIsTablet] = useState(typeof window !== 'undefined' ? window.innerWidth > 768 && window.innerWidth <= 1024 : false);
 
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth <= 768;
+      const width = window.innerWidth;
+      const mobile = width <= 768;
+      const tablet = width > 768 && width <= 1024;
       setIsMobile(mobile);
+      setIsTablet(tablet);
       if (mobile) {
         setIsCollapsed(false);
+      } else if (tablet) {
+        setIsCollapsed(true);
       }
     };
 
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -317,12 +325,15 @@ const Dashboard = () => {
       {/* Área de Conteúdo Principal */}
       <main style={{ 
         flex: 1, 
-        padding: isMobile ? '8px' : '16px', 
+        padding: isMobile ? '8px' : isTablet ? '12px' : '16px', 
         boxSizing: 'border-box', 
         height: isMobile ? 'calc(100dvh - 57px)' : '100dvh', 
+        maxHeight: isMobile ? 'calc(100dvh - 57px)' : '100dvh',
         overflow: 'hidden', 
         display: 'flex',
-        minWidth: 0
+        flexDirection: 'column',
+        minWidth: 0,
+        minHeight: 0
       }}>
         
         {/* TELA 1: HOME / DASHBOARD */}
@@ -378,38 +389,9 @@ const Dashboard = () => {
           />
         )}
 
-        {/* TELA 8: CONFIGURAÇÕES */}
+        {/* TELA 8: CONFIGURAÇÕES & ADMINISTRAÇÃO */}
         {activeMenu === 'configuracoes' && (
-          <div style={{
-            flex: 1,
-            backgroundColor: COR_FUNDO_CLARO,
-            borderRadius: '20px',
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '14px',
-            overflowY: 'auto'
-          }}>
-            <div style={{ backgroundColor: '#FFFFFF', borderRadius: '14px', padding: '16px', border: '1px solid #CBD5E1' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#0F1C2C', margin: '0 0 6px 0' }}>
-                Configurações da Unidade Operacional
-              </h2>
-              <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>
-                Unidade Juazeiro • Base Operacional e Aterro Sanitário
-              </p>
-            </div>
-            <div style={{ backgroundColor: '#FFFFFF', borderRadius: '14px', padding: '16px', border: '1px solid #CBD5E1', fontSize: '12px' }}>
-              <div style={{ fontWeight: '700', color: '#0F1C2C', marginBottom: '8px' }}>Módulos Ativos do Sistema:</div>
-              <ul style={{ margin: 0, paddingLeft: '20px', color: '#334155', lineHeight: '1.8' }}>
-                <li>Painel Geral Operacional & Indicadores em Tempo Real</li>
-                <li>Gestão de Ordens de Serviço (OS) com Drag-and-Drop</li>
-                <li>Almoxarifado & Controle de Estoque (9 Categorias Padronizadas)</li>
-                <li>Relatório Diário de Atividades (RDA) para Coleta e Tráfego</li>
-                <li>Frota de Veículos & Histórico de Manutenção/Pesagem</li>
-                <li>Pesagem de Veículos & Balança Rodoviária Integrada</li>
-              </ul>
-            </div>
-          </div>
+          <Configuracoes />
         )}
 
       </main>

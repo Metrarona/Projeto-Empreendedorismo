@@ -125,6 +125,10 @@ const HomeDashboard = ({
     <div style={{ 
       width: '100%', 
       height: '100%', 
+      maxHeight: '100%',
+      minHeight: 0,
+      minWidth: 0,
+      flex: 1,
       backgroundColor: COLOR_BG_LIGHT, 
       borderRadius: '20px', 
       padding: '16px', 

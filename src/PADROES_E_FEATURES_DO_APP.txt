@@ -153,10 +153,24 @@
    - Histórico Integrado do Veículo: linha do tempo com filtros por OS, RDA, Pesagens na Balança e Abastecimentos.
    - Modais completos para Cadastro de Novo Veículo e Registro Manual de Ocorrências no Histórico.
 
-8. PESAGEM DE VEÍCULOS & BALANÇA RODOVIÁRIA (PesagemVeiculos.jsx)
-   - Indicadores operacionais de pesagem: Peso Líquido Total Hoje (kg/ton), Total de Pesagens, Média por Carga e Veículos Ativos.
-   - Filtro por tipo de resíduo (RSU, RCC Entulhos, Podas/Vegetação, Lodo de ETE, Recicláveis) e por Balança (01 - Aterro, 02 - Transbordo, 03 - Pátio Juazeiro).
+8. PESAGEM DE VEÍCULOS & BALANÇA RODOVIÁRIA (PesagemVeiculos.jsx & ThermalTicketReceipt.jsx)
+   - Indicadores operacionais de pesagem: Peso Líquido Total Hoje (kg/ton), Total de Pesagens, Média por Carga e Placas Únicas.
+   - Filtro por tipo de resíduo (RSU, RCC Entulhos, Podas/Vegetação, Lodo de ETE, Recicláveis) e por Balança (01 - CTR Cariri, 02 - Transbordo, 03 - Pátio Juazeiro).
    - Modal de Nova Pesagem com integração direta à frota cadastrada (puxando placa, tara padrão e motorista automaticamente).
    - Cálculo em tempo real do Peso Líquido (Peso Bruto - Tara) em quilogramas e toneladas.
-   - Emissão e visualização de Ticket / Comprovante de Pesagem digital oficial com autenticação e código de barras.
+   - Emissão e visualização de e-Ticket Térmico Fiel ao Modelo Real da Sustentare Saneamento CTR Cariri:
+     * Logotipo Sustentare Saneamento em SVG vetorial ecológico de alta resolução;
+     * Cabeçalho: "SUSTENTARE SANEAMENTO", "CTR CARIRI", "RODOVIA CE 060 Nº 1100";
+     * Título: "PESSAGEM AUTOMÁTICA" e divisórias térmicas sólidas;
+     * Campos oficiais: CONTADOR, PLACA DO VEÍCULO, PLACA DA CARRETA, CÓDIGO DO PRODUTO, PRODUTO, CLIENTE/FORNECEDOR, MOTORISTA, TRANSPORTADORA, OBS (CARREGADO DD/MM/AAAA);
+     * Tabela de pesagens com alinhamento tabular: PRIMEIRA PESAGEM (Bruto) + Data/Hora, SEGUNDA PESAGEM (Tara) + Data/Hora;
+     * Destaque térmico: PESO LÍQUIDO KG, PESO LÍQUIDO COM DESC. e PESAGEM X VALOR UNIT;
+     * Assinatura manuscrita autêntica estilizada ("Bruno" / Operador) sobre linha tracejada e legenda do operador/motorista;
+     * Recursos de Ação: Impressão direta formatada para bobina térmica de 80mm (@media print), Cópia de texto monoespaçado para WhatsApp/clipboard, download do arquivo .TXT e botão de comparação instantânea ("Ver Foto Original").
+
+9. COMPONENTE DE FILTRAGEM RESPONSIVA & MENUS FLUTUANTES (UX Mobile & Tablet)
+   - Substituição de barras estáticas por botões compactos com ícone de Filtro (<Filter />), badge indicador de filtros ativos e Popover/Modal Flutuante Responsivo.
+   - Backdrop semi-transparente de tela cheia (zIndex 999/1000): impede fechamentos prematuros em telas sensíveis ao toque (iOS/Android/iPad) e nunca corta menus fora da tela.
+   - Correção de Flexbox (height 100%, minHeight 0, minWidth 0): garante que a listagem de dados (veículos, histórico, pesagens e estoque) role com total fluidez em smartphones e tablets, sem ser empurrada para fora do viewport.
+   - Alternador de visualização Cards vs Tabela em Veículos e agora também em Pesagem de Balança: cartões legíveis e compactos para telas menores e tabela com rolagem horizontal touch.
 ================================================================================

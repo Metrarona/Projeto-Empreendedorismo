@@ -72,3 +72,35 @@ p {
   scrollbar-width: thin;
   scrollbar-color: #94A3B8 transparent;
 }
+
+/* Regras de Impressão para Ticket Térmico de Balança */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .thermal-receipt-printable, .thermal-receipt-printable * {
+    visibility: visible;
+  }
+  .thermal-receipt-printable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 0 auto !important;
+    padding: 4mm !important;
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    border: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print {
+    display: none !important;
+  }
+  @page {
+    margin: 0;
+    size: auto;
+  }
+}

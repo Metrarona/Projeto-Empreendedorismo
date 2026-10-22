@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { 
   Truck, 
   History, 
@@ -14,7 +14,11 @@ import {
   X, 
   Eye, 
   Scale, 
-  ClipboardList 
+  ClipboardList,
+  Filter,
+  Check,
+  ChevronDown,
+  RotateCcw
 } from 'lucide-react';
 import { 
   CATEGORIAS_VEICULOS, 
@@ -31,7 +35,36 @@ const COLOR_CRITICO = '#FF4D4D';
 
 const Veiculos = ({ initialTab = 'veiculos', onNavigateToOS, onNavigateToPesagem }) => {
   const [activeTab, setActiveTab] = useState(initialTab); // 'veiculos' | 'historico'
-  const [veiculosList, setVeiculosList] = useState(INITIAL_VEICULOS);
+  const [veiculosList, setVeiculosList] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sustentare_veiculos_list');
+      return saved ? JSON.parse(saved) : INITIAL_VEICULOS;
+    } catch {
+      return INITIAL_VEICULOS;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('sustentare_veiculos_list', JSON.stringify(veiculosList));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [veiculosList]);
+
+  useEffect(() => {
+    const handleStorage = () => {
+      try {
+        const saved = localStorage.getItem('sustentare_veiculos_list');
+        if (saved) setVeiculosList(JSON.parse(saved));
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   const [historicoList, setHistoricoList] = useState(INITIAL_HISTORICO);
   
   // Filtros de Veículos
@@ -39,11 +72,48 @@ const Veiculos = ({ initialTab = 'veiculos', onNavigateToOS, onNavigateToPesagem
   const [selectedStatus, setSelectedStatus] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
+  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+  const filterMenuRef = useRef(null);
+
+  // Fecha o menu flutuante ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
+        setIsFilterMenuOpen(false);
+      }
+    };
+    if (isFilterMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isFilterMenuOpen]);
 
   // Filtros de Histórico
   const [historicoTipo, setHistoricoTipo] = useState('Todos'); // 'Todos' | 'OS' | 'RDA' | 'Pesagem' | 'Abastecimento'
   const [historicoVeiculoFilter, setHistoricoVeiculoFilter] = useState('Todos');
   const [historicoSearch, setHistoricoSearch] = useState('');
+  const [isHistoricoFilterMenuOpen, setIsHistoricoFilterMenuOpen] = useState(false);
+  const historicoFilterMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (historicoFilterMenuRef.current && !historicoFilterMenuRef.current.contains(event.target)) {
+        setIsHistoricoFilterMenuOpen(false);
+      }
+    };
+    if (isHistoricoFilterMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isHistoricoFilterMenuOpen]);
 
   // Modais
   const [selectedVeiculoDetalhes, setSelectedVeiculoDetalhes] = useState(null);
@@ -287,6 +357,10 @@ const Veiculos = ({ initialTab = 'veiculos', onNavigateToOS, onNavigateToPesagem
       boxSizing: 'border-box', 
       overflowY: 'auto', 
       WebkitOverflowScrolling: 'touch',
+      height: '100%',
+      maxHeight: '100%',
+      minHeight: 0,
+      minWidth: 0,
       fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       display: 'flex',
       flexDirection: 'column',
@@ -483,168 +557,448 @@ const Veiculos = ({ initialTab = 'veiculos', onNavigateToOS, onNavigateToPesagem
       {/* ABA 1: FROTA DE VEÍCULOS */}
       {activeTab === 'veiculos' && (
         <>
-          {/* CHIPS DE CATEGORIAS DA PLATAFORMA */}
-          <div style={{
-            display: 'flex',
-            gap: '6px',
-            overflowX: 'auto',
-            WebkitOverflowScrolling: 'touch',
-            paddingBottom: '4px'
-          }}>
-            {CATEGORIAS_VEICULOS.map(cat => {
-              const isSelected = selectedCategoria === cat;
-              const count = contagemPorCategoria[cat] || 0;
-
-              return (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setSelectedCategoria(cat)}
-                  style={{
-                    backgroundColor: isSelected ? '#0F1C2C' : '#FFFFFF',
-                    color: isSelected ? '#FFFFFF' : '#334155',
-                    border: isSelected ? '1px solid #0F1C2C' : '1px solid #CBD5E1',
-                    borderRadius: '20px',
-                    padding: '6px 12px',
-                    fontSize: '11px',
-                    fontWeight: isSelected ? '700' : '600',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    flexShrink: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  <span>{cat}</span>
-                  <span style={{
-                    backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : '#F1F5F9',
-                    color: isSelected ? '#FFFFFF' : '#64748B',
-                    padding: '1px 6px',
-                    borderRadius: '10px',
-                    fontSize: '10px',
-                    fontWeight: '800'
-                  }}>
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* BARRA DE FILTROS E PESQUISA */}
+          {/* BARRA DE PESQUISA, FILTROS FLUTUANTES E CONTROLES (100% RESPONSIVA) */}
           <div style={{
             backgroundColor: '#FFFFFF',
             borderRadius: '12px',
             padding: '10px 14px',
             border: '1px solid #CBD5E1',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '10px'
+            flexDirection: 'column',
+            gap: '8px'
           }}>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '8px', 
-              flex: '1 1 240px',
-              backgroundColor: '#F8FAFC',
-              borderRadius: '8px',
-              padding: '6px 10px',
-              border: '1px solid #E2E8F0'
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '8px',
+              flexWrap: 'wrap'
             }}>
-              <Search size={16} color="#94A3B8" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar por placa, modelo, código ou operador..."
-                style={{
-                  border: 'none',
-                  background: 'transparent',
-                  outline: 'none',
-                  fontSize: '12px',
-                  width: '100%',
-                  color: '#0F1C2C'
-                }}
-              />
-              {searchTerm && (
-                <button
-                  type="button"
-                  onClick={() => setSearchTerm('')}
-                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 0 }}
-                >
-                  <X size={14} color="#94A3B8" />
-                </button>
-              )}
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontSize: '11px', fontWeight: '700', color: '#64748B' }}>Status:</span>
-                <select
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
+              {/* Campo de Busca */}
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px', 
+                flex: '1 1 200px',
+                backgroundColor: '#F8FAFC',
+                borderRadius: '8px',
+                padding: '7px 12px',
+                border: '1px solid #E2E8F0'
+              }}>
+                <Search size={16} color="#94A3B8" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar por placa, modelo, código, operador..."
                   style={{
-                    backgroundColor: '#F8FAFC',
-                    border: '1px solid #CBD5E1',
-                    borderRadius: '8px',
-                    padding: '6px 8px',
-                    fontSize: '12px',
-                    color: '#0F1C2C',
+                    border: 'none',
+                    background: 'transparent',
                     outline: 'none',
-                    fontWeight: '600'
+                    fontSize: '12px',
+                    width: '100%',
+                    color: '#0F1C2C'
                   }}
-                >
-                  <option value="Todos">Todos os Status</option>
-                  <option value="Operacional">Operacional</option>
-                  <option value="Em Manutenção">Em Manutenção</option>
-                  <option value="Aguardando OS">Aguardando OS</option>
-                  <option value="Standby / Reserva">Standby / Reserva</option>
-                </select>
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm('')}
+                    style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 0 }}
+                  >
+                    <X size={14} color="#94A3B8" />
+                  </button>
+                )}
               </div>
 
-              {/* Botões de visualização Cards vs Tabela */}
-              <div style={{ display: 'flex', backgroundColor: '#F1F5F9', borderRadius: '8px', padding: '2px' }}>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('cards')}
-                  title="Visualização em Cards"
-                  style={{
-                    border: 'none',
-                    padding: '6px 10px',
-                    borderRadius: '6px',
-                    backgroundColor: viewMode === 'cards' ? '#0F1C2C' : 'transparent',
-                    color: viewMode === 'cards' ? '#FFFFFF' : '#64748B',
-                    cursor: 'pointer',
-                    fontSize: '11px',
-                    fontWeight: '700'
-                  }}
-                >
-                  Cards
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('table')}
-                  title="Visualização em Tabela"
-                  style={{
-                    border: 'none',
-                    padding: '6px 10px',
-                    borderRadius: '6px',
-                    backgroundColor: viewMode === 'table' ? '#0F1C2C' : 'transparent',
-                    color: viewMode === 'table' ? '#FFFFFF' : '#64748B',
-                    cursor: 'pointer',
-                    fontSize: '11px',
-                    fontWeight: '700'
-                  }}
-                >
-                  Tabela
-                </button>
+              {/* Botões de Ação: Ícone com Menu Flutuante + Alternador de Visualização */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {/* ÍCONE DE FILTRO COM MENU FLUTUANTE */}
+                <div style={{ position: 'relative' }} ref={filterMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
+                    title="Filtrar por Categoria e Status"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '7px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #CBD5E1',
+                      backgroundColor: (selectedCategoria !== 'Todos' || selectedStatus !== 'Todos') ? '#0F1C2C' : '#FFFFFF',
+                      color: (selectedCategoria !== 'Todos' || selectedStatus !== 'Todos') ? '#FFFFFF' : '#0F1C2C',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+                    }}
+                  >
+                    <Filter size={15} color={(selectedCategoria !== 'Todos' || selectedStatus !== 'Todos') ? '#FFFFFF' : '#0F1C2C'} />
+                    <span>Filtrar</span>
+                    {(selectedCategoria !== 'Todos' || selectedStatus !== 'Todos') && (
+                      <span style={{
+                        backgroundColor: '#2381FD',
+                        color: '#FFFFFF',
+                        borderRadius: '10px',
+                        padding: '1px 6px',
+                        fontSize: '10px',
+                        fontWeight: '800'
+                      }}>
+                        {(selectedCategoria !== 'Todos' ? 1 : 0) + (selectedStatus !== 'Todos' ? 1 : 0)}
+                      </span>
+                    )}
+                    <ChevronDown size={14} style={{ opacity: 0.7 }} />
+                  </button>
+
+                  {/* MENU FLUTUANTE DE FILTROS (100% RESPONSIVO COM BACKDROP) */}
+                  {isFilterMenuOpen && (
+                    <>
+                      {/* Backdrop que fecha o menu ao tocar fora */}
+                      <div 
+                        onClick={() => setIsFilterMenuOpen(false)}
+                        style={{
+                          position: 'fixed',
+                          inset: 0,
+                          backgroundColor: 'rgba(15, 28, 44, 0.5)',
+                          backdropFilter: 'blur(3px)',
+                          WebkitBackdropFilter: 'blur(3px)',
+                          zIndex: 999
+                        }}
+                      />
+
+                      {/* Modal / Popover Flutuante Centralizado e Responsivo */}
+                      <div style={{
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        backgroundColor: '#FFFFFF',
+                        borderRadius: '16px',
+                        boxShadow: '0 25px 50px -12px rgba(15, 28, 44, 0.4), 0 0 0 1px rgba(15, 28, 44, 0.1)',
+                        border: '1px solid #CBD5E1',
+                        width: 'min(420px, calc(100vw - 28px))',
+                        maxHeight: 'min(580px, calc(100dvh - 36px))',
+                        zIndex: 1000,
+                        padding: '16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                        overflowY: 'auto',
+                        boxSizing: 'border-box'
+                      }}>
+                        {/* Cabeçalho do Menu Flutuante */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #F1F5F9', paddingBottom: '10px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ backgroundColor: '#EFF6FF', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <Filter size={16} color={COLOR_PRIMARY} />
+                            </div>
+                            <div>
+                              <div style={{ fontSize: '14px', fontWeight: '800', color: '#0F1C2C' }}>
+                                Filtros da Frota
+                              </div>
+                              <div style={{ fontSize: '11px', color: '#64748B' }}>
+                                Categorias e status operacional
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            {(selectedCategoria !== 'Todos' || selectedStatus !== 'Todos') && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedCategoria('Todos');
+                                  setSelectedStatus('Todos');
+                                }}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  border: 'none',
+                                  background: 'transparent',
+                                  color: '#EF4444',
+                                  fontSize: '11px',
+                                  fontWeight: '700',
+                                  cursor: 'pointer',
+                                  padding: '4px 8px',
+                                  borderRadius: '6px'
+                                }}
+                              >
+                                <RotateCcw size={12} /> Limpar
+                              </button>
+                            )}
+
+                            <button
+                              type="button"
+                              onClick={() => setIsFilterMenuOpen(false)}
+                              aria-label="Fechar filtros"
+                              style={{
+                                border: 'none',
+                                background: '#F1F5F9',
+                                color: '#64748B',
+                                borderRadius: '8px',
+                                padding: '6px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Grupo: Status Operacional */}
+                        <div>
+                          <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748B', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.5px' }}>
+                            Status do Veículo
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '5px' }}>
+                            {['Todos', 'Operacional', 'Em Manutenção', 'Aguardando OS', 'Standby / Reserva'].map(st => {
+                              const isSel = selectedStatus === st;
+                              return (
+                                <button
+                                  key={st}
+                                  type="button"
+                                  onClick={() => setSelectedStatus(st)}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '7px 9px',
+                                    borderRadius: '8px',
+                                    border: isSel ? '1px solid #0F1C2C' : '1px solid #E2E8F0',
+                                    backgroundColor: isSel ? '#0F1C2C' : '#F8FAFC',
+                                    color: isSel ? '#FFFFFF' : '#334155',
+                                    fontSize: '11px',
+                                    fontWeight: isSel ? '700' : '500',
+                                    cursor: 'pointer',
+                                    textAlign: 'left'
+                                  }}
+                                >
+                                  <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{st}</span>
+                                  {isSel && <Check size={13} color="#FFFFFF" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Grupo: Categorias da Plataforma */}
+                        <div>
+                          <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748B', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.5px' }}>
+                            Categorias da Frota
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '200px', overflowY: 'auto' }}>
+                            {CATEGORIAS_VEICULOS.map(cat => {
+                              const isSel = selectedCategoria === cat;
+                              const count = contagemPorCategoria[cat] || 0;
+                              return (
+                                <button
+                                  key={cat}
+                                  type="button"
+                                  onClick={() => setSelectedCategoria(cat)}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '7px 10px',
+                                    borderRadius: '8px',
+                                    border: isSel ? '1px solid #2381FD' : '1px solid #F1F5F9',
+                                    backgroundColor: isSel ? '#EFF6FF' : '#FAFAFA',
+                                    color: isSel ? '#1E40AF' : '#334155',
+                                    fontSize: '12px',
+                                    fontWeight: isSel ? '700' : '500',
+                                    cursor: 'pointer',
+                                    textAlign: 'left',
+                                    transition: 'background 0.15s ease'
+                                  }}
+                                >
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+                                    {isSel ? <Check size={14} color="#2381FD" /> : <div style={{ width: '14px' }} />}
+                                    <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{cat}</span>
+                                  </div>
+                                  <span style={{
+                                    backgroundColor: isSel ? '#2381FD' : '#E2E8F0',
+                                    color: isSel ? '#FFFFFF' : '#475569',
+                                    padding: '2px 8px',
+                                    borderRadius: '10px',
+                                    fontSize: '11px',
+                                    fontWeight: '800',
+                                    marginLeft: '6px',
+                                    flexShrink: 0
+                                  }}>
+                                    {count}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Botão Aplicar / Concluir */}
+                        <div style={{ display: 'flex', gap: '8px', paddingTop: '6px', borderTop: '1px solid #F1F5F9' }}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedCategoria('Todos');
+                              setSelectedStatus('Todos');
+                            }}
+                            style={{
+                              flex: 1,
+                              backgroundColor: '#F1F5F9',
+                              color: '#475569',
+                              border: '1px solid #CBD5E1',
+                              borderRadius: '8px',
+                              padding: '10px',
+                              fontSize: '12px',
+                              fontWeight: '700',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Limpar Filtros
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIsFilterMenuOpen(false)}
+                            style={{
+                              flex: 2,
+                              backgroundColor: '#0F1C2C',
+                              color: '#FFFFFF',
+                              border: 'none',
+                              borderRadius: '8px',
+                              padding: '10px',
+                              fontSize: '12px',
+                              fontWeight: '700',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '6px'
+                            }}
+                          >
+                            <Check size={14} /> Aplicar Filtros ({filteredVeiculos.length} veículos)
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Alternador de Visualização Cards vs Tabela */}
+                <div style={{ display: 'flex', backgroundColor: '#F1F5F9', borderRadius: '8px', padding: '2px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('cards')}
+                    title="Visualização em Cards"
+                    style={{
+                      border: 'none',
+                      padding: '6px 10px',
+                      borderRadius: '6px',
+                      backgroundColor: viewMode === 'cards' ? '#0F1C2C' : 'transparent',
+                      color: viewMode === 'cards' ? '#FFFFFF' : '#64748B',
+                      cursor: 'pointer',
+                      fontSize: '11px',
+                      fontWeight: '700'
+                    }}
+                  >
+                    Cards
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('table')}
+                    title="Visualização em Tabela"
+                    style={{
+                      border: 'none',
+                      padding: '6px 10px',
+                      borderRadius: '6px',
+                      backgroundColor: viewMode === 'table' ? '#0F1C2C' : 'transparent',
+                      color: viewMode === 'table' ? '#FFFFFF' : '#64748B',
+                      cursor: 'pointer',
+                      fontSize: '11px',
+                      fontWeight: '700'
+                    }}
+                  >
+                    Tabela
+                  </button>
+                </div>
               </div>
             </div>
+
+            {/* Badges de Filtros Ativos (Exibidos apenas quando houver filtros aplicados) */}
+            {(selectedCategoria !== 'Todos' || selectedStatus !== 'Todos') && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', paddingTop: '4px', borderTop: '1px solid #F1F5F9' }}>
+                <span style={{ fontSize: '11px', color: '#64748B', fontWeight: '700' }}>Filtros ativos:</span>
+                
+                {selectedCategoria !== 'Todos' && (
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    backgroundColor: '#0F1C2C',
+                    color: '#FFFFFF',
+                    borderRadius: '20px',
+                    padding: '3px 8px',
+                    fontSize: '11px',
+                    fontWeight: '700'
+                  }}>
+                    <span>{selectedCategoria}</span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCategoria('Todos')}
+                      style={{ border: 'none', background: 'transparent', color: '#FFFFFF', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                )}
+
+                {selectedStatus !== 'Todos' && (
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    backgroundColor: '#2381FD',
+                    color: '#FFFFFF',
+                    borderRadius: '20px',
+                    padding: '3px 8px',
+                    fontSize: '11px',
+                    fontWeight: '700'
+                  }}>
+                    <span>Status: {selectedStatus}</span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedStatus('Todos')}
+                      style={{ border: 'none', background: 'transparent', color: '#FFFFFF', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategoria('Todos');
+                    setSelectedStatus('Todos');
+                  }}
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    color: '#EF4444',
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    padding: '2px 4px'
+                  }}
+                >
+                  Limpar tudo
+                </button>
+              </div>
+            )}
           </div>
 
           {/* LISTAGEM DOS VEÍCULOS */}
@@ -668,7 +1022,7 @@ const Veiculos = ({ initialTab = 'veiculos', onNavigateToOS, onNavigateToPesagem
           ) : viewMode === 'cards' ? (
             <div style={{ 
               display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', 
               gap: '12px' 
             }}>
               {filteredVeiculos.map(v => (
@@ -838,7 +1192,7 @@ const Veiculos = ({ initialTab = 'veiculos', onNavigateToOS, onNavigateToPesagem
               overflowX: 'auto',
               WebkitOverflowScrolling: 'touch'
             }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left', minWidth: '720px' }}>
                 <thead>
                   <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '2px solid #E2E8F0', color: '#475569', fontSize: '11px', fontWeight: '800' }}>
                     <th style={{ padding: '10px 14px' }}>PLACA / CÓDIGO</th>
@@ -946,88 +1300,345 @@ const Veiculos = ({ initialTab = 'veiculos', onNavigateToOS, onNavigateToPesagem
             padding: '12px 14px',
             border: '1px solid #CBD5E1',
             display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '10px'
+            flexDirection: 'column',
+            gap: '8px'
           }}>
-            {/* Filtro por Veículo */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748B' }}>Veículo:</span>
-              <select
-                value={historicoVeiculoFilter}
-                onChange={(e) => setHistoricoVeiculoFilter(e.target.value)}
-                style={{
-                  backgroundColor: '#F8FAFC',
-                  border: '1px solid #CBD5E1',
-                  borderRadius: '8px',
-                  padding: '6px 10px',
-                  fontSize: '12px',
-                  color: '#0F1C2C',
-                  fontWeight: '700',
-                  outline: 'none',
-                  maxWidth: '260px'
-                }}
-              >
-                <option value="Todos">Toda a Frota (Consolidado)</option>
-                {veiculosList.map(v => (
-                  <option key={v.id} value={v.id}>
-                    {v.placa} - {v.modelo}
-                  </option>
-                ))}
-              </select>
-
-              {/* Filtro por Tipo de Evento */}
-              <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748B', marginLeft: '6px' }}>Tipo:</span>
-              <select
-                value={historicoTipo}
-                onChange={(e) => setHistoricoTipo(e.target.value)}
-                style={{
-                  backgroundColor: '#F8FAFC',
-                  border: '1px solid #CBD5E1',
-                  borderRadius: '8px',
-                  padding: '6px 10px',
-                  fontSize: '12px',
-                  color: '#0F1C2C',
-                  fontWeight: '700',
-                  outline: 'none'
-                }}
-              >
-                <option value="Todos">Todos os Eventos</option>
-                <option value="OS">Ordens de Serviço (OS)</option>
-                <option value="RDA">Relatórios Diários (RDA)</option>
-                <option value="Pesagem">Pesagens na Balança</option>
-                <option value="Abastecimento">Abastecimentos</option>
-              </select>
-            </div>
-
-            {/* Busca rápida no histórico */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '6px', 
-              backgroundColor: '#F8FAFC',
-              borderRadius: '8px',
-              padding: '6px 10px',
-              border: '1px solid #CBD5E1',
-              flex: '1 1 200px'
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '8px',
+              flexWrap: 'wrap'
             }}>
-              <Search size={14} color="#94A3B8" />
-              <input
-                type="text"
-                value={historicoSearch}
-                onChange={(e) => setHistoricoSearch(e.target.value)}
-                placeholder="Buscar no histórico..."
-                style={{
-                  border: 'none',
-                  background: 'transparent',
-                  outline: 'none',
-                  fontSize: '12px',
-                  width: '100%',
-                  color: '#0F1C2C'
-                }}
-              />
+              {/* Busca rápida no histórico */}
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px', 
+                backgroundColor: '#F8FAFC',
+                borderRadius: '8px',
+                padding: '7px 12px',
+                border: '1px solid #CBD5E1',
+                flex: '1 1 200px'
+              }}>
+                <Search size={15} color="#94A3B8" />
+                <input
+                  type="text"
+                  value={historicoSearch}
+                  onChange={(e) => setHistoricoSearch(e.target.value)}
+                  placeholder="Buscar no histórico por placa, título, responsável..."
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    outline: 'none',
+                    fontSize: '12px',
+                    width: '100%',
+                    color: '#0F1C2C'
+                  }}
+                />
+                {historicoSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setHistoricoSearch('')}
+                    style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 0 }}
+                  >
+                    <X size={14} color="#94A3B8" />
+                  </button>
+                )}
+              </div>
+
+              {/* Ícone com Menu Flutuante para Filtrar Histórico */}
+              <div style={{ position: 'relative' }} ref={historicoFilterMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsHistoricoFilterMenuOpen(!isHistoricoFilterMenuOpen)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '7px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #CBD5E1',
+                    backgroundColor: (historicoTipo !== 'Todos' || historicoVeiculoFilter !== 'Todos') ? '#0F1C2C' : '#FFFFFF',
+                    color: (historicoTipo !== 'Todos' || historicoVeiculoFilter !== 'Todos') ? '#FFFFFF' : '#0F1C2C',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+                  }}
+                >
+                  <Filter size={15} color={(historicoTipo !== 'Todos' || historicoVeiculoFilter !== 'Todos') ? '#FFFFFF' : '#0F1C2C'} />
+                  <span>Filtrar</span>
+                  {(historicoTipo !== 'Todos' || historicoVeiculoFilter !== 'Todos') && (
+                    <span style={{
+                      backgroundColor: '#2381FD',
+                      color: '#FFFFFF',
+                      borderRadius: '10px',
+                      padding: '1px 6px',
+                      fontSize: '10px',
+                      fontWeight: '800'
+                    }}>
+                      {(historicoTipo !== 'Todos' ? 1 : 0) + (historicoVeiculoFilter !== 'Todos' ? 1 : 0)}
+                    </span>
+                  )}
+                  <ChevronDown size={14} style={{ opacity: 0.7 }} />
+                </button>
+
+                {/* Menu Flutuante do Histórico (100% Responsivo com Backdrop) */}
+                {isHistoricoFilterMenuOpen && (
+                  <>
+                    <div 
+                      onClick={() => setIsHistoricoFilterMenuOpen(false)}
+                      style={{
+                        position: 'fixed',
+                        inset: 0,
+                        backgroundColor: 'rgba(15, 28, 44, 0.5)',
+                        backdropFilter: 'blur(3px)',
+                        WebkitBackdropFilter: 'blur(3px)',
+                        zIndex: 999
+                      }}
+                    />
+
+                    <div style={{
+                      position: 'fixed',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      backgroundColor: '#FFFFFF',
+                      borderRadius: '16px',
+                      boxShadow: '0 25px 50px -12px rgba(15, 28, 44, 0.4), 0 0 0 1px rgba(15, 28, 44, 0.1)',
+                      border: '1px solid #CBD5E1',
+                      width: 'min(380px, calc(100vw - 28px))',
+                      maxHeight: 'min(560px, calc(100dvh - 36px))',
+                      zIndex: 1000,
+                      padding: '16px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                      overflowY: 'auto',
+                      boxSizing: 'border-box'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #F1F5F9', paddingBottom: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ backgroundColor: '#EFF6FF', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Filter size={16} color={COLOR_PRIMARY} />
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '14px', fontWeight: '800', color: '#0F1C2C' }}>
+                              Filtros do Histórico
+                            </div>
+                            <div style={{ fontSize: '11px', color: '#64748B' }}>
+                              Tipo de evento e veículo
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          {(historicoTipo !== 'Todos' || historicoVeiculoFilter !== 'Todos') && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setHistoricoTipo('Todos');
+                                setHistoricoVeiculoFilter('Todos');
+                              }}
+                              style={{
+                                border: 'none',
+                                background: 'transparent',
+                                color: '#EF4444',
+                                fontSize: '11px',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                padding: '4px 8px'
+                              }}
+                            >
+                              <RotateCcw size={12} /> Limpar
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setIsHistoricoFilterMenuOpen(false)}
+                            aria-label="Fechar filtros"
+                            style={{
+                              border: 'none',
+                              background: '#F1F5F9',
+                              color: '#64748B',
+                              borderRadius: '8px',
+                              padding: '6px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Filtro por Tipo */}
+                      <div>
+                        <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748B', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.5px' }}>
+                          Tipo de Registro
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          {['Todos', 'OS', 'RDA', 'Pesagem', 'Abastecimento'].map(t => {
+                            const isSel = historicoTipo === t;
+                            const label = t === 'Todos' ? 'Todos os Registros' : t === 'OS' ? 'Ordens de Serviço (OS)' : t === 'RDA' ? 'Relatórios Diários (RDA)' : t === 'Pesagem' ? 'Pesagens de Balança' : 'Abastecimentos';
+                            return (
+                              <button
+                                key={t}
+                                type="button"
+                                onClick={() => setHistoricoTipo(t)}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  padding: '7px 10px',
+                                  borderRadius: '8px',
+                                  border: isSel ? '1px solid #2381FD' : '1px solid #F1F5F9',
+                                  backgroundColor: isSel ? '#EFF6FF' : '#FAFAFA',
+                                  color: isSel ? '#1E40AF' : '#334155',
+                                  fontSize: '12px',
+                                  fontWeight: isSel ? '700' : '500',
+                                  cursor: 'pointer',
+                                  textAlign: 'left'
+                                }}
+                              >
+                                <span>{label}</span>
+                                {isSel && <Check size={14} color="#2381FD" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Filtro por Veículo */}
+                      <div>
+                        <div style={{ fontSize: '11px', fontWeight: '800', color: '#64748B', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.5px' }}>
+                          Veículo Específico
+                        </div>
+                        <select
+                          value={historicoVeiculoFilter}
+                          onChange={(e) => setHistoricoVeiculoFilter(e.target.value)}
+                          style={{
+                            width: '100%',
+                            backgroundColor: '#F8FAFC',
+                            border: '1px solid #CBD5E1',
+                            borderRadius: '8px',
+                            padding: '8px 10px',
+                            fontSize: '12px',
+                            color: '#0F1C2C',
+                            fontWeight: '600',
+                            outline: 'none'
+                          }}
+                        >
+                          <option value="Todos">Toda a Frota (Consolidado)</option>
+                          {veiculosList.map(v => (
+                            <option key={v.id} value={v.id}>
+                              {v.placa} - {v.modelo}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Botão Aplicar / Concluir */}
+                      <div style={{ display: 'flex', gap: '8px', paddingTop: '6px', borderTop: '1px solid #F1F5F9' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setHistoricoTipo('Todos');
+                            setHistoricoVeiculoFilter('Todos');
+                          }}
+                          style={{
+                            flex: 1,
+                            backgroundColor: '#F1F5F9',
+                            color: '#475569',
+                            border: '1px solid #CBD5E1',
+                            borderRadius: '8px',
+                            padding: '10px',
+                            fontSize: '12px',
+                            fontWeight: '700',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Limpar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsHistoricoFilterMenuOpen(false)}
+                          style={{
+                            flex: 2,
+                            backgroundColor: '#0F1C2C',
+                            color: '#FFFFFF',
+                            border: 'none',
+                            borderRadius: '8px',
+                            padding: '10px',
+                            fontSize: '12px',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px'
+                          }}
+                        >
+                          <Check size={14} /> Aplicar ({filteredHistorico.length} eventos)
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
+
+            {/* Badges de Filtros Ativos no Histórico */}
+            {(historicoTipo !== 'Todos' || historicoVeiculoFilter !== 'Todos') && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', paddingTop: '4px', borderTop: '1px solid #F1F5F9' }}>
+                <span style={{ fontSize: '11px', color: '#64748B', fontWeight: '700' }}>Filtros ativos:</span>
+                {historicoTipo !== 'Todos' && (
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    backgroundColor: '#0F1C2C',
+                    color: '#FFFFFF',
+                    borderRadius: '20px',
+                    padding: '2px 8px',
+                    fontSize: '11px',
+                    fontWeight: '700'
+                  }}>
+                    <span>Tipo: {historicoTipo}</span>
+                    <button type="button" onClick={() => setHistoricoTipo('Todos')} style={{ border: 'none', background: 'transparent', color: '#FFF', cursor: 'pointer', padding: 0 }}>✕</button>
+                  </span>
+                )}
+                {historicoVeiculoFilter !== 'Todos' && (
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    backgroundColor: '#2381FD',
+                    color: '#FFFFFF',
+                    borderRadius: '20px',
+                    padding: '2px 8px',
+                    fontSize: '11px',
+                    fontWeight: '700'
+                  }}>
+                    <span>Veículo: {veiculosList.find(v => v.id === historicoVeiculoFilter)?.placa || historicoVeiculoFilter}</span>
+                    <button type="button" onClick={() => setHistoricoVeiculoFilter('Todos')} style={{ border: 'none', background: 'transparent', color: '#FFF', cursor: 'pointer', padding: 0 }}>✕</button>
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setHistoricoTipo('Todos');
+                    setHistoricoVeiculoFilter('Todos');
+                  }}
+                  style={{ border: 'none', background: 'transparent', color: '#EF4444', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}
+                >
+                  Limpar tudo
+                </button>
+              </div>
+            )}
           </div>
 
           {/* TIMELINE DE EVENTOS DO HISTÓRICO */}

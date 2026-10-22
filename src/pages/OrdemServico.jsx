@@ -5,7 +5,9 @@ import {
   Search, 
   Plus, 
   Circle,
-  ChevronDown
+  ChevronDown,
+  X,
+  Check
 } from 'lucide-react';
 
 const COLOR_PRIMARY = '#2381FD';
@@ -249,7 +251,9 @@ const OrdemServico = () => {
       fontFamily: 'sans-serif', 
       width: '100%', 
       height: '100%',
-      maxHeight: '100%' 
+      maxHeight: '100%',
+      minHeight: 0,
+      minWidth: 0
     }}>
       
       {/* Cabeçalho */}
@@ -340,45 +344,157 @@ const OrdemServico = () => {
           <div style={{ position: 'relative' }} ref={filterRef}>
             <button 
               onClick={() => setIsFilterOpen(!isFilterOpen)}
-              style={{ backgroundColor: '#E0E0E0', border: 'none', borderRadius: '8px', padding: '10px 16px', height: '100%', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}
+              style={{ 
+                backgroundColor: sortField !== 'id' ? '#0F1C2C' : '#FFFFFF', 
+                color: sortField !== 'id' ? '#FFFFFF' : '#0F1C2C', 
+                border: '1px solid #CBD5E1', 
+                borderRadius: '8px', 
+                padding: '9px 14px', 
+                height: '100%', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px', 
+                fontSize: '12px', 
+                fontWeight: '700', 
+                cursor: 'pointer', 
+                whiteSpace: 'nowrap',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.04)' 
+              }}
             >
-              <Filter size={14} /> Filtrar <ChevronDown size={14} />
+              <Filter size={14} color={sortField !== 'id' ? '#FFFFFF' : '#0F1C2C'} />
+              <span>Filtrar</span>
+              {sortField !== 'id' && (
+                <span style={{
+                  backgroundColor: '#2381FD',
+                  color: '#FFFFFF',
+                  borderRadius: '10px',
+                  padding: '1px 6px',
+                  fontSize: '10px',
+                  fontWeight: '800'
+                }}>
+                  1
+                </span>
+              )}
+              <ChevronDown size={14} style={{ opacity: 0.7 }} />
             </button>
 
+            {/* Menu Flutuante de Ordenação / Filtros (100% Responsivo com Backdrop) */}
             {isFilterOpen && (
-              <div style={{ position: 'absolute', right: 0, top: '110%', backgroundColor: '#FFF', border: '1px solid #DDD', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', width: '230px', zIndex: 10, padding: '6px 0' }}>
-                <div style={{ padding: '6px 12px', fontSize: '11px', fontWeight: '700', color: '#888', borderBottom: '1px solid #EEE' }}>
-                  FILTRAR / ORDENAR POR:
+              <>
+                <div 
+                  onClick={() => setIsFilterOpen(false)}
+                  style={{
+                    position: 'fixed',
+                    inset: 0,
+                    backgroundColor: 'rgba(15, 28, 44, 0.5)',
+                    backdropFilter: 'blur(3px)',
+                    WebkitBackdropFilter: 'blur(3px)',
+                    zIndex: 999
+                  }}
+                />
+
+                <div style={{ 
+                  position: 'fixed',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  backgroundColor: '#FFF', 
+                  border: '1px solid #CBD5E1', 
+                  borderRadius: '16px', 
+                  boxShadow: '0 25px 50px -12px rgba(15, 28, 44, 0.4), 0 0 0 1px rgba(15, 28, 44, 0.1)', 
+                  width: 'min(360px, calc(100vw - 28px))', 
+                  maxHeight: 'min(520px, calc(100dvh - 36px))',
+                  zIndex: 1000, 
+                  padding: '16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '10px',
+                  boxSizing: 'border-box',
+                  overflowY: 'auto'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #F1F5F9', paddingBottom: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ backgroundColor: '#EFF6FF', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Filter size={16} color={COLOR_PRIMARY} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: '800', color: '#0F1C2C' }}>
+                          Filtrar & Ordenar
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#64748B' }}>
+                          Ordens de Serviço ativas
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsFilterOpen(false)}
+                      aria-label="Fechar"
+                      style={{
+                        border: 'none',
+                        background: '#F1F5F9',
+                        color: '#64748B',
+                        borderRadius: '8px',
+                        padding: '6px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {[
+                      { key: 'status', label: 'Status (Execução › Aberto › Concluído)' },
+                      { key: 'prioridade', label: 'Prioridade (Alta › Média › Baixa)' },
+                      { key: 'equipamento', label: 'Equipamento (A-Z)' },
+                      { key: 'solicitante', label: 'Solicitante (A-Z)' },
+                      { key: 'responsavel', label: 'Responsável (A-Z)' },
+                      { key: 'data', label: 'Data da Abertura (Crescente)' },
+                      { key: 'id', label: 'Nº da OS (Padrão)' }
+                    ].map(opt => {
+                      const isSel = sortField === opt.key;
+                      return (
+                        <button
+                          key={opt.key}
+                          type="button"
+                          onClick={() => handleApplyFilter(opt.key)}
+                          style={{
+                            width: '100%',
+                            padding: '9px 12px',
+                            textAlign: 'left',
+                            borderRadius: '8px',
+                            border: isSel ? '1px solid #2381FD' : '1px solid #F1F5F9',
+                            backgroundColor: isSel ? '#EFF6FF' : '#FAFAFA',
+                            color: isSel ? '#1E40AF' : '#334155',
+                            fontSize: '12px',
+                            fontWeight: isSel ? '700' : '500',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <span>{opt.label}</span>
+                          {isSel && <Check size={14} color="#2381FD" />}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <button onClick={() => handleApplyFilter('status')} style={{ width: '100%', padding: '8px 12px', textAlign: 'left', border: 'none', background: sortField === 'status' ? '#F0F7FF' : 'none', color: sortField === 'status' ? COLOR_PRIMARY : '#333', fontSize: '13px', fontWeight: sortField === 'status' ? '600' : '400', cursor: 'pointer' }}>
-                  Status (Execução › Aberto › Concluído)
-                </button>
-                <button onClick={() => handleApplyFilter('prioridade')} style={{ width: '100%', padding: '8px 12px', textAlign: 'left', border: 'none', background: sortField === 'prioridade' ? '#F0F7FF' : 'none', color: sortField === 'prioridade' ? COLOR_PRIMARY : '#333', fontSize: '13px', fontWeight: sortField === 'prioridade' ? '600' : '400', cursor: 'pointer' }}>
-                  Prioridade (Alta › Média › Baixa)
-                </button>
-                <button onClick={() => handleApplyFilter('equipamento')} style={{ width: '100%', padding: '8px 12px', textAlign: 'left', border: 'none', background: sortField === 'equipamento' ? '#F0F7FF' : 'none', color: sortField === 'equipamento' ? COLOR_PRIMARY : '#333', fontSize: '13px', fontWeight: sortField === 'equipamento' ? '600' : '400', cursor: 'pointer' }}>
-                  Equipamento (A-Z)
-                </button>
-                <button onClick={() => handleApplyFilter('solicitante')} style={{ width: '100%', padding: '8px 12px', textAlign: 'left', border: 'none', background: sortField === 'solicitante' ? '#F0F7FF' : 'none', color: sortField === 'solicitante' ? COLOR_PRIMARY : '#333', fontSize: '13px', fontWeight: sortField === 'solicitante' ? '600' : '400', cursor: 'pointer' }}>
-                  Solicitante (A-Z)
-                </button>
-                <button onClick={() => handleApplyFilter('responsavel')} style={{ width: '100%', padding: '8px 12px', textAlign: 'left', border: 'none', background: sortField === 'responsavel' ? '#F0F7FF' : 'none', color: sortField === 'responsavel' ? COLOR_PRIMARY : '#333', fontSize: '13px', fontWeight: sortField === 'responsavel' ? '600' : '400', cursor: 'pointer' }}>
-                  Responsável (A-Z)
-                </button>
-                <button onClick={() => handleApplyFilter('data')} style={{ width: '100%', padding: '8px 12px', textAlign: 'left', border: 'none', background: sortField === 'data' ? '#F0F7FF' : 'none', color: sortField === 'data' ? COLOR_PRIMARY : '#333', fontSize: '13px', fontWeight: sortField === 'data' ? '600' : '400', cursor: 'pointer' }}>
-                  Data da Abertura (Crescente)
-                </button>
-                <button onClick={() => handleApplyFilter('id')} style={{ width: '100%', padding: '8px 12px', textAlign: 'left', border: 'none', background: sortField === 'id' ? '#F0F7FF' : 'none', color: sortField === 'id' ? COLOR_PRIMARY : '#333', fontSize: '13px', fontWeight: sortField === 'id' ? '600' : '400', cursor: 'pointer' }}>
-                  Nº da OS (Crescente)
-                </button>
-              </div>
+              </>
             )}
           </div>
         </div>
 
-        {/* Container rolável com altura máxima e cabeçalho fixo */}
-        <div style={{ overflowX: 'auto', maxHeight: '320px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px', minWidth: '650px' }}>
+        {/* Container rolável com altura máxima e cabeçalho fixo (100% responsivo para tablet e mobile) */}
+        <div style={{ overflowX: 'auto', minHeight: 0, maxHeight: '380px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px', minWidth: '700px' }}>
             <thead style={{ position: 'sticky', top: 0, backgroundColor: '#E2E8F0', zIndex: 1 }}>
               <tr style={{ color: '#333' }}>
                 {columns.map((col, index) => (
